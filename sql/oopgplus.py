@@ -129,6 +129,56 @@ class TableStructure:
         '''
         return self.execute_sql_read(sql).set_index('column_name')
     
+    def get_foreign_direction(self,foreign_column:str,column_refrence_foreign:str)->dict:
+        '''
+        From a reference column in a table what foreign column indicates
+        to a primary key in a table what foreign column indicates.
+        
+        Parameters
+        ----------
+        foreign_column : str
+            .
+
+        Examples
+        --------
+        Table person
+            id  name   gender
+        1   0   Rick   M
+        2   1   Selene F
+
+        Table address
+            id  address id_housemate
+        1   0   Apple   0
+        2   1   Banana  0
+
+
+        >>> ts.get_foreign_direction('id_housemate','name')
+        {
+        'Rick':0
+        'Selene:1
+        }
+        '''
+
+        df_foreign = self.get_foreign_table()
+
+        if foreign_column not in df_foreign.index:
+            raise TypeError("You must select foreign_column as foreign column")
+        
+        inf = df_foreign.loc[foreign_column].to_dict()
+        ts_foreign = TableStructure(schema_name=inf['upper_schema'],
+                                    table_name=inf['upper_table'],
+                                    engine=self.engine)
+        df_from_foreign = ts_foreign.read()
+
+        if column_refrence_foreign not in df_from_foreign.columns:
+            raise TypeError("You must select column_refrence_foreign that is in the foreign table")
+
+        convert_table = df_from_foreign[column_refrence_foreign].to_dict()
+        convert_table = {convert_table[key]:key for key in convert_table}
+        convert_table
+        return convert_table
+
+
     def detect_child_tables(self):
         child_tables=[]
         
