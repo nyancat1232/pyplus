@@ -9,11 +9,11 @@ import numpy as np
 def _apply_escaping(sentence:str):
     return sentence.replace("'","''")
 
-def _conversion_Sql_value(val:None|int|float|np.floating|str|date|pd.Timestamp|list):
+def _conversion_Sql_value(val:None|int|np.integer|float|np.floating|str|date|pd.Timestamp|list):
     match val:
         case None:
             return 'NULL'
-        case int():
+        case int()|np.integer():
             return f"'{str(val)}'"
         case float()|np.floating():
             return f"'{str(val)}'"
