@@ -314,8 +314,7 @@ class TableStructure:
         for child in all_children:
             try:
                 df_child = child.read_expand()
-                df_child_columns = df_child.columns
-                df_child_indicate = {col : f'{child.parent_foreign_id}.{col}' for col in df_child_columns}
+                df_child_indicate = {col : f'{child.parent_foreign_id}.{col}' for col in df_child.columns}
                 df_child = df_child.rename(columns=df_child_indicate)
 
                 df = pd.merge(left=df,right=df_child,
