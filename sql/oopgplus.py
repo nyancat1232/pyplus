@@ -337,14 +337,18 @@ class TableStructure:
             return True
         else:
             return False
+        
+    def get_foreign_id_of_value(self,row,column):
+        raise NotImplementedError('not')
 
     def upload(self,id_row:int,**kwarg):
         cp = kwarg.copy()
         for column in cp:
             if self.check_if_not_local_column(column):
                 current_column=column.split(".")[0]
-                v=self.get_foreign_table().loc[current_column]
-                v
+                address=self.get_foreign_table().loc[current_column]
+                ts = TableStructure(address['upper_schema'],address['upper_table'],self.engine)
+
                 del cp[column]
                 raise NotImplementedError("Foreign column not implemented.")
 
