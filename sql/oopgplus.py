@@ -328,10 +328,10 @@ class TableStructure:
         
         return df.sort_index(ascending=ascending)
     
-    def check_if_foreign_column(self,column_local:str)->bool:
-        if '.' not in column_local:
+    def check_if_not_local_column(self,column:str)->bool:
+        if '.' not in column:
             return False
-        current_column = column_local.split(".")[0]
+        current_column = column.split(".")[0]
 
         if current_column in self.get_foreign_table().index:
             return True
@@ -341,7 +341,7 @@ class TableStructure:
     def upload(self,id_row:int,**kwarg):
         cp = kwarg.copy()
         for column in cp:
-            if self.check_if_foreign_column(column):
+            if self.check_if_not_local_column(column):
                 current_column=column.split(".")[0]
                 v=self.get_foreign_table().loc[current_column]
                 v
@@ -361,7 +361,7 @@ class TableStructure:
     def upload_append(self,**kwarg):
         cp = kwarg.copy()
         for column in cp:
-            if self.check_if_foreign_column(column):
+            if self.check_if_not_local_column(column):
                 current_column=column.split(".")[0]
                 v=self.get_foreign_table().loc[current_column]
                 v
