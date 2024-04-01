@@ -329,7 +329,10 @@ class TableStructure:
         return df.sort_index(ascending=ascending)
     
     def check_if_foreign_column(self,column:str)->bool:
+        if '.' not in column:
+            return False
         current_column = column.split(".")[0]
+
         if current_column in self.get_foreign_table().index:
             return True
         else:
