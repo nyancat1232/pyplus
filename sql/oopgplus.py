@@ -336,11 +336,12 @@ class TableStructure:
             return False
 
     def upload(self,id_row:int,**kwarg):
-        for column in kwarg:
+        cp = kwarg.copy()
+        for column in cp:
             if self.check_if_foreign_column(column):
                 raise NotImplementedError("Foreign column not implemented.")
 
-        original=",".join(["=".join([key,f"{_conversion_Sql_value(kwarg[key])}"]) for key in kwarg])
+        original=",".join(["=".join([key,f"{_conversion_Sql_value(cp[key])}"]) for key in cp])
         
         sql = text(f"""
         UPDATE {self.schema_name}.{self.table_name}
@@ -351,12 +352,14 @@ class TableStructure:
         return self.execute_sql_write(sql)
     
     def upload_append(self,**kwarg):
-        for column in kwarg:
+        cp = kwarg.copy()
+        for column in cp:
             if self.check_if_foreign_column(column):
                 raise NotImplementedError("Foreign column not implemented.")
-            
-        columns = ','.join([f'"{key}"' for key in kwarg])
-        values = ','.join([_conversion_Sql_value(kwarg[key]) for key in kwarg])
+        
+
+        columns = ','.join([f'"{key}"' for key in cp])
+        values = ','.join([_conversion_Sql_value(cp[key]) for key in cp])
         sql = text(f"""
         INSERT INTO {self.schema_name}.{self.table_name} ({columns})
         VALUES ({values})
