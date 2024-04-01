@@ -339,6 +339,7 @@ class TableStructure:
         cp = kwarg.copy()
         for column in cp:
             if self.check_if_foreign_column(column):
+                del cp[column]
                 raise NotImplementedError("Foreign column not implemented.")
 
         original=",".join(["=".join([key,f"{_conversion_Sql_value(cp[key])}"]) for key in cp])
@@ -354,6 +355,7 @@ class TableStructure:
     def upload_append(self,**kwarg):
         cp = kwarg.copy()
         for column in cp:
+            del cp[column]
             if self.check_if_foreign_column(column):
                 raise NotImplementedError("Foreign column not implemented.")
         
