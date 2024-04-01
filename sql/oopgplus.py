@@ -377,6 +377,8 @@ class TableStructure:
         """)
         
         return self.execute_sql_write(sql)
+    def __repr__(self):
+        return f"{self.schema_name}.{self.table_name}"
 
 
     
