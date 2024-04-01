@@ -328,7 +328,17 @@ class TableStructure:
         
         return df.sort_index(ascending=ascending)
     
+    def check_if_foreign_column(self,column:str)->bool:
+        current_column = column.split(".")[0]
+        if current_column in self.get_foreign_table().index:
+            return True
+        else:
+            return False
+
     def upload(self,id_row:int,**kwarg):
+        for column in kwarg:
+            if self.check_if_foreign_column(column):
+                raise NotImplementedError("Foreign column not implemented.")
 
         original=",".join(["=".join([key,f"{_conversion_Sql_value(kwarg[key])}"]) for key in kwarg])
         
@@ -341,6 +351,10 @@ class TableStructure:
         return self.execute_sql_write(sql)
     
     def upload_append(self,**kwarg):
+        for column in kwarg:
+            if self.check_if_foreign_column(column):
+                raise NotImplementedError("Foreign column not implemented.")
+            
         columns = ','.join([f'"{key}"' for key in kwarg])
         values = ','.join([_conversion_Sql_value(kwarg[key]) for key in kwarg])
         sql = text(f"""
