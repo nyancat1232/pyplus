@@ -371,9 +371,9 @@ class TableStructure:
                 address=self.get_foreign_table().loc[local_column]
                 local_foreign_id = self.get_local_foreign_id(id_row,column)
 
-                upload_column_in_foreign=".".join(column.split(".")[1:])
-                upload_val = kwarg[column]
-                foreign_upload_dict = {upload_column_in_foreign:upload_val}
+                foreign_column=".".join(column.split(".")[1:])
+                foreign_val = kwarg[column]
+                foreign_upload_dict = {foreign_column:foreign_val}
 
                 foreign_ts = TableStructure(address['upper_schema'],address['upper_table'],self.engine)
                 
@@ -389,7 +389,7 @@ class TableStructure:
                     upload_local = {local_column:foreign_id}
                     self.upload(id_row,**upload_local)
                 else:
-                    foreign_upload_dict = {upload_column_in_foreign:upload_val}
+                    foreign_upload_dict = {foreign_column:foreign_val}
                     foreign_ts.upload(local_foreign_id,**foreign_upload_dict)
 
                 del cp[column]
