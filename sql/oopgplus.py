@@ -418,6 +418,8 @@ class TableStructure:
                 v
                 del cp[column]
                 raise NotImplementedError("Foreign column not implemented.")
+            elif cp[column] is pd.NaT:
+                del cp[column]
         
 
         columns = ','.join([f'"{key}"' for key in cp])
