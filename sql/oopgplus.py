@@ -360,20 +360,27 @@ class TableStructure:
         cp = kwarg.copy()
         for column in kwarg:
             if self.check_if_not_local_column(column):
-                current_column=column.split(".")[0]
-                address=self.get_foreign_table().loc[current_column]
+                local_column=column.split(".")[0]
+                address=self.get_foreign_table().loc[local_column]
                 foreign_id = self.get_foreign_id_of_value(id_row,column)
 
                 upload_column_in_foreign=".".join(column.split(".")[1:])
                 upload_val = kwarg[column]
                 upload_dict = {upload_column_in_foreign:upload_val}
-                
+
                 ts = TableStructure(address['upper_schema'],address['upper_table'],self.engine)
                 
                 if foreign_id is pd.NA:
-                    #res_foreign_id=ts.upload_append(upload_column_in_foreign=kwarg[column])
-                    raise NotImplementedError(f"Foreign column not implemented. {upload_column_in_foreign}\n\n{upload_val}")
-                    #self.upload(id_row,column=res_foreign_id)
+                    ind_foreign = set(ts.read().index.to_list())
+                    df_foreign_after =ts.upload_append(**upload_dict)
+                    ind_foreign_after = set(df_foreign_after.index.to_list())
+                    ind_diff = ind_foreign_after - ind_foreign
+                    diff_ids = [v for v in ind_diff]
+                    if len(diff_ids)!=1:
+                        raise NotImplementedError("The amount of changed index in foreign is not one.")
+                    diff_id = diff_ids[0]
+                    upload_local = {local_column:diff_id}
+                    self.upload(id_row,**upload_local)
                 else:
                     upload_dict = {upload_column_in_foreign:upload_val}
                     ts.upload(foreign_id,**upload_dict)
