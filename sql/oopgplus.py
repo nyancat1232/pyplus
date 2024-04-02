@@ -358,14 +358,30 @@ class TableStructure:
 
     def upload(self,id_row:int,**kwarg):
         cp = kwarg.copy()
-        for column in cp:
+        for column in kwarg:
             if self.check_if_not_local_column(column):
                 current_column=column.split(".")[0]
                 address=self.get_foreign_table().loc[current_column]
+                foreign_id = self.get_foreign_id_of_value(id_row,column)
+
+                upload_column_in_foreign=".".join(column.split(".")[1:])
+                upload_val = kwarg[column]
+                upload_dict = {upload_column_in_foreign:upload_val}
+                
                 ts = TableStructure(address['upper_schema'],address['upper_table'],self.engine)
+                
+                if foreign_id is pd.NA:
+                    #res_foreign_id=ts.upload_append(upload_column_in_foreign=kwarg[column])
+                    raise NotImplementedError(f"Foreign column not implemented. {upload_column_in_foreign}\n\n{upload_val}")
+                    #self.upload(id_row,column=res_foreign_id)
+                else:
+                    upload_dict = {upload_column_in_foreign:upload_val}
+                    ts.upload(foreign_id,**upload_dict)
 
                 del cp[column]
-                raise NotImplementedError("Foreign column not implemented.")
+        
+        if len(cp)<1:
+            return self.read()
 
         original=",".join(["=".join([key,f"{_conversion_Sql_value(cp[key])}"]) for key in cp])
         
