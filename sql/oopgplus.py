@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import sqlalchemy
 from typing import Self
 from datetime import datetime,date
+from zoneinfo import ZoneInfo
 import numpy as np
 
 def _apply_escaping(sentence:str):
@@ -40,7 +41,7 @@ def _convert_pgsql_type_to_pandas_type(pgtype:str):
         case 'boolean':
             return pd.BooleanDtype()
         case 'text':
-            return 'string'
+            return pd.StringDtype()
         case 'double precision':
             return pd.Float64Dtype()
         case 'date':
