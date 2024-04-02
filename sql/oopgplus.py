@@ -34,21 +34,21 @@ def _convert_pgsql_type_to_pandas_type(pgtype:str):
     #https://pandas.pydata.org/pandas-docs/stable/user_guide/basics.html#basics-dtypes
     match pgtype:
         case 'bigint':
-            return 'Int64' #Int vs int
+            return pd.Int64Dtype() #Int vs int
         case 'integer':
-            return 'Int32' #Int vs int
+            return pd.Int32Dtype() #Int vs int
         case 'boolean':
-            return 'boolean'
+            return pd.BooleanDtype()
         case 'text':
             return 'string'
         case 'double precision':
-            return 'Float64'
+            return pd.Float64Dtype()
         case 'date':
             return 'object'
         case 'timestamp without time zone':
             return 'datetime64[ns]'
         case 'timestamp with time zone':
-            return 'datetime64[ns, UTC]'
+            return pd.DatetimeTZDtype('ns',tz=ZoneInfo('UTC'))
         case 'ARRAY':
             return 'object'
         case _:
