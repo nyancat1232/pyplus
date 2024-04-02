@@ -362,28 +362,28 @@ class TableStructure:
             if self.check_if_not_local_column(column):
                 local_column=column.split(".")[0]
                 address=self.get_foreign_table().loc[local_column]
-                foreign_id = self.get_foreign_id_of_value(id_row,column)
+                local_foreign_id = self.get_foreign_id_of_value(id_row,column)
 
                 upload_column_in_foreign=".".join(column.split(".")[1:])
                 upload_val = kwarg[column]
-                upload_dict = {upload_column_in_foreign:upload_val}
+                foreign_upload_dict = {upload_column_in_foreign:upload_val}
 
-                ts = TableStructure(address['upper_schema'],address['upper_table'],self.engine)
+                foreign_ts = TableStructure(address['upper_schema'],address['upper_table'],self.engine)
                 
-                if foreign_id is pd.NA:
-                    ind_foreign = set(ts.read().index.to_list())
-                    df_foreign_after =ts.upload_append(**upload_dict)
-                    ind_foreign_after = set(df_foreign_after.index.to_list())
-                    ind_diff = ind_foreign_after - ind_foreign
-                    diff_ids = [v for v in ind_diff]
-                    if len(diff_ids)!=1:
+                if local_foreign_id is pd.NA:
+                    foreign_index = set(foreign_ts.read().index.to_list())
+                    df_foreign_after =foreign_ts.upload_append(**foreign_upload_dict)
+                    foreign_index_after = set(df_foreign_after.index.to_list())
+                    foreign_index_diff = foreign_index_after - foreign_index
+                    foreign_index_list_diff = [v for v in foreign_index_diff]
+                    if len(foreign_index_list_diff)!=1:
                         raise NotImplementedError("The amount of changed index in foreign is not one.")
-                    diff_id = diff_ids[0]
-                    upload_local = {local_column:diff_id}
+                    foreign_id = foreign_index_list_diff[0]
+                    upload_local = {local_column:foreign_id}
                     self.upload(id_row,**upload_local)
                 else:
-                    upload_dict = {upload_column_in_foreign:upload_val}
-                    ts.upload(foreign_id,**upload_dict)
+                    foreign_upload_dict = {upload_column_in_foreign:upload_val}
+                    foreign_ts.upload(local_foreign_id,**foreign_upload_dict)
 
                 del cp[column]
         
