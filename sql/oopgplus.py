@@ -338,10 +338,17 @@ class TableStructure:
         else:
             return False
         
-    def get_foreign_id_of_value(self,row,column)->int:
+    def get_local_foreign_id(self,row,column)->int:
         '''
-        get a foreign id of expanded dataframe.
+        get a local foreign id of expanded dataframe.
         
+        Parameters
+        --------
+        row
+            a row of a local table.
+        column : str
+            a foreign column of a local table such as 'fruit_id.color'
+
         Returns
         --------
         int
@@ -362,7 +369,7 @@ class TableStructure:
             if self.check_if_not_local_column(column):
                 local_column=column.split(".")[0]
                 address=self.get_foreign_table().loc[local_column]
-                local_foreign_id = self.get_foreign_id_of_value(id_row,column)
+                local_foreign_id = self.get_local_foreign_id(id_row,column)
 
                 upload_column_in_foreign=".".join(column.split(".")[1:])
                 upload_val = kwarg[column]
