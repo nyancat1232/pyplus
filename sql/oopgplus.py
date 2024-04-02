@@ -338,8 +338,23 @@ class TableStructure:
         else:
             return False
         
-    def get_foreign_id_of_value(self,row,column):
-        raise NotImplementedError('not')
+    def get_foreign_id_of_value(self,row,column)->int:
+        '''
+        get a foreign id of expanded dataframe.
+        
+        Returns
+        --------
+        int
+            foreign id.
+        
+        '''
+        df_read = self.read()
+        df_expand = self.read_expand()
+        col_sub = {col:col[:col.find('.')] for col in df_expand.columns if col.find('.')!=-1}
+        for col in col_sub:
+            df_read[col] = df_read[col_sub[col]]
+
+        return df_read.loc[row,column]
 
     def upload(self,id_row:int,**kwarg):
         cp = kwarg.copy()
