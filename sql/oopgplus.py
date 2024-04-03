@@ -468,6 +468,12 @@ class SchemaStructure:
         
         return self.execute_sql_write(query)
 
+    def create_domain(self,type_name:str,base_type:str):
+        sql = text(f'''CREATE DOMAIN {self.schema_name}.{type_name} 
+                             AS {base_type};
+        ''')
+        return self.execute_sql_write(sql)
+
 
 class SQLALchemyPlus:
     engine : sqlalchemy.Engine
