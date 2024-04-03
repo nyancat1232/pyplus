@@ -248,37 +248,6 @@ class TableStructure:
         else:
             return [self]
             
-    def create_table(self,**type_dict):
-        '''
-        create a table
-        
-        Parameters
-        ----------
-        type_dict : dict
-            {column_name : column_type}.
-        
-        
-        Examples
-        --------  
-        >>> ts = sqlp.TableStructure(schema_name=schema_name,table_name=table_name,engine=conn.engine)
-        >>> res = ts.create_table(name='text',location='text',grade='bigint',x='double precision',y='double precision')
-            text   location    grade    x    y
-        ...
-        '''
-        for rc in _reserved_columns:
-            if rc in type_dict:
-                raise ValueError(f'{rc} is reserved.')
-        
-
-
-        qlines = [" ".join(_ret_a_line(key,type_dict[key])) for key in type_dict]
-        qlines.insert(0,"id bigint NOT NULL GENERATED ALWAYS AS IDENTITY")
-        qlines.append("PRIMARY KEY (id)")
-        query=text(f'''CREATE TABLE {self.schema_name}.{self.table_name} (
-            {','.join(qlines)}
-        );''')
-        
-        return self.execute_sql_write(query)
 
     def append_column(self,**type_dict):
         for rc in _reserved_columns:
@@ -458,6 +427,47 @@ def get_table_list(engine:sqlalchemy.Engine):
         ret = pd.read_sql_query(sql,con=con_con)
     
         return ret
+
+
+class SchemaStructure:
+    schema_name : str
+    engine : sqlalchemy.Engine
+
+    def __init__(self,schema_name:str,
+                 engine:sqlalchemy.Engine):
+        self.schema_name = schema_name
+        self.engine = engine
+
+                
+    def execute_sql_write(self,sql):
+        with self.engine.connect() as conn:
+            conn.execute(sql)
+            conn.commit()
+
+    def create_table(self,table_name:str,**type_dict):
+        '''
+        create a table
+        
+        Parameters
+        ----------
+        table_name : str
+            New table.
+        type_dict : dict
+            {column_name : column_type}.
+        '''
+        for rc in _reserved_columns:
+            if rc in type_dict:
+                raise ValueError(f'{rc} is reserved.')
+        
+        qlines = [" ".join(_ret_a_line(key,type_dict[key])) for key in type_dict]
+        qlines.insert(0,"id bigint NOT NULL GENERATED ALWAYS AS IDENTITY")
+        qlines.append("PRIMARY KEY (id)")
+        query=text(f'''CREATE TABLE {self.schema_name}.{table_name} (
+            {','.join(qlines)}
+        );''')
+        
+        return self.execute_sql_write(query)
+
 
 class SQLALchemyPlus:
     engine : sqlalchemy.Engine
