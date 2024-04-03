@@ -108,6 +108,18 @@ class TableStructure:
         '''
         return self.execute_sql_read(sql,index_column='column_name')
     
+    def get_types_expanded(self):
+        types = [self.get_types()]
+        foreigns = self.get_foreign_table().to_dict(orient='index')
+        for foreign in foreigns:
+            ts_foreign = TableStructure(foreigns[foreign]['upper_schema'],foreigns[foreign]['upper_table'],self.engine)
+            df = ts_foreign.get_types_expanded()
+            df = df.rename(index={v:f'{foreign}.{v}' for v in df.index})
+            types += [df]
+        df_ret = pd.concat(types)
+        return df_ret
+        
+    
     def refresh_identity(self):
         sql = f'''SELECT attname as identity_column
         FROM pg_attribute 
