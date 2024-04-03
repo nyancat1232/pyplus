@@ -1,6 +1,6 @@
 import streamlit as st
 import numpy as np
-from typing import Sequence,Callable
+from typing import Sequence,Callable,Literal
 from dataclasses import dataclass
 
 def divide(old_func):
@@ -58,7 +58,7 @@ class TabsPlus:
 
     Examples
     --------
-    >>> tabs = TabsPlus(['apple','banana'])
+    >>> tabs = TabsPlus('tab',['apple','banana'])
     >>> with tabs['apple']:
     >>>     ...
 
@@ -68,13 +68,33 @@ class TabsPlus:
     >>> with tabs[0]:
     >>>     ...
     '''
-    def __init__(self,*tabs: str):
+    def __init__(self,connection=Literal['tab','column'],tabs: list[str]=[]):
+        '''
+        (description)
+        
+        Parameters
+        ----------
+        connection : 'tab' or 'column'
+            How to display.
+        tabs : list[str]
+            What to display.
+        
+        Examples
+        --------
+        >>> tabs = stp.TabsPlus('column',['first','second','third'])
+        >>> with tabs['first']:
+        >>>     ....
+        '''
         tab_information={tab_str:ind for ind,tab_str in enumerate(tabs)}
-        self._streamlit_tabs = st.tabs(tab_information)
+        match connection:
+            case 'tab':
+                self._streamlit_display = st.tabs(tabs)
+            case 'column':
+                self._streamlit_display = st.columns(len(tabs))
         self._tab_ind = tab_information
 
     def __getitem__(self,item):
-        return self._streamlit_tabs[self._tab_ind[item]]
+        return self._streamlit_display[self._tab_ind[item]]
 
 
 
