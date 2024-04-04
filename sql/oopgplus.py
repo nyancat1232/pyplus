@@ -393,14 +393,19 @@ class TableStructure:
     def upload_append(self,**kwarg):
         cp = kwarg.copy()
         for column in kwarg:
+            print(cp[column])
             if self.check_if_not_local_column(column):
                 current_column=column.split(".")[0]
                 v=self.get_foreign_table().loc[current_column]
                 v
                 del cp[column]
                 raise NotImplementedError("Foreign column not implemented.")
-            elif cp[column] is pd.NaT:
-                del cp[column]
+            else:
+                match cp[column]:
+                    case pd.NaT:
+                        del cp[column]
+                    case None:
+                        del cp[column]
         
 
         columns = ','.join([f'"{key}"' for key in cp])
