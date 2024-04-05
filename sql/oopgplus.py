@@ -20,11 +20,11 @@ def _conversion_Sql_value(val:None|int|np.integer|float|np.floating|str|date|pd.
             return f"'{str(val)}'"
         case str():
             return f"'{_apply_escaping(val)}'"
+        case pd.Timestamp():
+            return f"'{val.strftime('%Y-%m-%d %H:%M:%S%z')}'"
         case date():
             escape_str = val.strftime("%Y-%m-%d")
             return f"'{escape_str}'"
-        case pd.Timestamp():
-            return f"'{str(val)}'"
         case list():
             val_after = [f'"{str(v)}"' for v in val]
             return "'{"+f"{','.join(val_after)}"+"}'"
