@@ -75,6 +75,9 @@ def _ret_a_line(key:str,dtype:str):
 _reserved_columns = ['id']
 
 class TableStructure:
+    '''
+    TableStructure is a class that easily operate Create, Read, Update databases especially a table with foreign columns.
+    '''
     schema_name : str
     table_name : str
     engine : sqlalchemy.Engine
