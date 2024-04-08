@@ -81,9 +81,6 @@ class TableStructure:
     schema_name : str
     table_name : str
     engine : sqlalchemy.Engine
-    parent_table : Self
-    parent_foreign_id : str
-    generation : int
 
     _identity_column : str
 
@@ -198,16 +195,10 @@ class TableStructure:
 
 
     def __init__(self,schema_name:str,table_name:str,
-                 engine:sqlalchemy.Engine,
-                 parent_table:Self|None=None,parent_foreign_id:str|None=None,
-                 generation:int=0):
+                 engine:sqlalchemy.Engine):
         self.schema_name = schema_name
         self.table_name = table_name
         self.engine = engine
-        if parent_table:
-            self.parent_table = parent_table
-            self.parent_foreign_id = parent_foreign_id
-        self.generation = generation
         self._identity_column = self.refresh_identity()
 
 
