@@ -293,24 +293,16 @@ class TableStructure:
         return df_exec_res
     
     def read_expand(self,ascending=False):
-        df = self.read().reset_index()
+        df = self.read()
         
-        all_children = self.get_all_children()[1:]
-
-        for child in all_children:
-            try:
-                df_child = child.read_expand()
-                df_child_indicate = {col : f'{child.parent_foreign_id}.{col}' for col in df_child.columns}
-                df_child = df_child.rename(columns=df_child_indicate)
-
-                df = pd.merge(left=df,right=df_child,
-                        left_on=child.parent_foreign_id,right_index=True,
-                        how='left')
-                del df[child.parent_foreign_id]
-            except:
-                pass
-
-        df=df.set_index(self._identity_column)
+        df_foreign = self.get_foreign_table()
+        foreign_tables = df_foreign.to_dict(orient='index')
+        for foreign_col in foreign_tables:
+            ts = TableStructure(foreign_tables[foreign_col]['upper_schema'],foreign_tables[foreign_col]['upper_table'],self.engine)
+            df_ftable=ts.read_expand(ascending=ascending)
+            df_ftable=df_ftable.rename(columns={col:f'{foreign_col}.{col}' for col in df_ftable.columns.to_list()})
+            df = pd.merge(df,df_ftable,'left',left_on=foreign_col,right_index=True)
+            del df[foreign_col]
         
         return df.sort_index(ascending=ascending)
     
