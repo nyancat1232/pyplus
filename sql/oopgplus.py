@@ -265,7 +265,7 @@ class TableStructure:
             df_ftable=ts.read_expand(ascending=ascending)
             df_ftable=df_ftable.rename(columns={col:f'{foreign_col}.{col}' for col in df_ftable.columns.to_list()})
             df = pd.merge(df,df_ftable,'left',left_on=foreign_col,right_index=True)
-            del df[foreign_col]
+            #del df[foreign_col]
         
         return df.sort_index(ascending=ascending)
     
