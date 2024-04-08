@@ -196,23 +196,6 @@ class TableStructure:
         return convert_table
 
 
-    def detect_child_tables(self):
-        child_tables=[]
-        
-        df_foreign_keys = self.get_foreign_table()
-        
-        for foreign_key_index,foreign_key_series in df_foreign_keys.iterrows():
-            current_foreign_schema =  foreign_key_series['upper_schema']
-            current_foreign_table =  foreign_key_series['upper_table']
-            column_name_before_foreign = foreign_key_index
-            child_tables.append(TableStructure(schema_name=current_foreign_schema,
-                                                    table_name=current_foreign_table,
-                                                    engine=self.engine,
-                                                    parent_table=self,
-                                                    parent_foreign_id=column_name_before_foreign,
-                                                    generation=self.generation+1))
-        return child_tables
-
 
     def __init__(self,schema_name:str,table_name:str,
                  engine:sqlalchemy.Engine,
@@ -251,17 +234,6 @@ class TableStructure:
         
         return self.read()
             
-    def get_all_children(self):
-        children = self.detect_child_tables()
-        if len(children)>0:
-            rr = [self]
-            for ts_child in children:
-                rr.extend(ts_child.get_all_children())
-            rr.sort(key=lambda l:l.generation,reverse=False)
-
-            return rr
-        else:
-            return [self]
             
 
     def append_column(self,**type_dict):
