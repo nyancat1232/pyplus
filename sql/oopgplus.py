@@ -322,12 +322,16 @@ class TableStructure:
                 if local_foreign_id is pd.NA:
                     foreign_index = set(foreign_ts.read().index.to_list())
                     df_foreign_after =foreign_ts.upload_append(**foreign_upload_dict)
-                    foreign_index_after = set(df_foreign_after.index.to_list())
-                    foreign_index_diff = foreign_index_after - foreign_index
-                    foreign_index_list_diff = [v for v in foreign_index_diff]
-                    if len(foreign_index_list_diff)!=1:
-                        raise NotImplementedError("The amount of changed index in foreign is not one.")
-                    foreign_id = foreign_index_list_diff[0]
+
+                    def get_foreign_returned():
+                        foreign_index_after = set(df_foreign_after.index.to_list())
+                        foreign_index_diff = foreign_index_after - foreign_index
+                        foreign_index_list_diff = [v for v in foreign_index_diff]
+                        if len(foreign_index_list_diff)!=1:
+                            raise NotImplementedError("The amount of changed index in foreign is not one.")
+                        return foreign_index_list_diff[0]
+                    
+                    foreign_id = get_foreign_returned()
                     upload_local = {local_column:foreign_id}
                     self.upload(id_row,**upload_local)
                 else:
