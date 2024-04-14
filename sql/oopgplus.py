@@ -444,7 +444,10 @@ class SchemaStructure:
             {','.join(qlines)}
         );''')
         
-        return self.execute_sql_write(query)
+        self.execute_sql_write(query)
+
+        ts = TableStructure(self.schema_name,table_name,self.engine)
+        return ts
 
     def create_domain(self,type_name:str,base_type:str):
         sql = text(f'''CREATE DOMAIN {self.schema_name}.{type_name} 
