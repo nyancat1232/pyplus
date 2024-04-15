@@ -455,6 +455,12 @@ class SchemaStructure:
         ''')
         return self.execute_sql_write(sql)
 
+def create_schema(engine:sqlalchemy.Engine,schema_name:str)->SchemaStructure:
+    sql = text(f'''CREATE SCHEMA {schema_name}''')
+    with engine.connect() as conn:
+        conn.execute(sql)
+        conn.commit()
+    return SchemaStructure(schema_name,engine)
 
 class SQLALchemyPlus:
     engine : sqlalchemy.Engine
