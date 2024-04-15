@@ -62,12 +62,14 @@ class SoupElement:
 class BSPlus:
     bss : list[SoupElement]
     session : aiohttp.ClientSession
+    num_of_repeat : int
 
-    def __init__(self,lbss:list[SoupElement],aiosession=None):
+    def __init__(self,lbss:list[SoupElement],num_of_repeat=5,aiosession=None):
         self.session = aiosession
         self.bss = []
         for bs in lbss:
             self.bss.append(bs)
+        self.num_of_repeat=num_of_repeat
             
     def __call__(self,
                  pre_callback_func:Callable|None=None,
