@@ -18,12 +18,11 @@ class SoupElement:
             q=0.9,image/webp,image/apng,*/*;q=0.8"}
     name:str
     url:str
-    max_trial : int = 3
     bs_result:BeautifulSoup = field(init=False)
     last_table:pd.DataFrame = field(init=False)
 
-    def open_bs(self):
-        for current in range(self.max_trial):
+    def open_bs(self,max_trial:int=3):
+        for current in range(max_trial):
             try:
                 resp = get(url=self.url,headers=SoupElement.my_headers)
                 self.bs_result=BeautifulSoup(markup=resp.content,features='html5lib')
