@@ -82,7 +82,7 @@ class BSPlus:
         for bs in self.bss:
            if pre_callback_func is not None:
                pre_callback_func(bs)
-           bs.open_bs() 
+           bs.open_bs(max_trial=self.num_of_repeat) 
            if post_callback_func is not None:
                post_callback_func(bs)
         return self
