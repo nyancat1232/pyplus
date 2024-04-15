@@ -1,13 +1,13 @@
-from typing import Generator
+from typing import Generator,Any
 
-def select_yielder(gen:Generator,msg:str):
+def select_yielder(gen:Generator[tuple[Any,str],Any,None],msg:str):
     '''
-    catch a return of generator. yield type must be like (msg:str,value:Any).
-    
+    catch a return of generator. yield type must be like (value:Any,msg:str).
+
     Parameters
     ----------
     gen : Generator
-        generator that yields (msg,value).
+        generator that yields (value,msg).
     
     Returns
     --------
@@ -17,14 +17,14 @@ def select_yielder(gen:Generator,msg:str):
     Examples
     --------
     >>> def test_yield(first_msg):
-    >>>     yield f'{first_msg}: apple', 3
-    >>>     yield f'{first_msg}: banaba', 1
-    >>>     yield f'{first_msg}: cherry', 2
+    >>>     yield 3,f'{first_msg}: apple'
+    >>>     yield 1,f'{first_msg}: banaba'
+    >>>     yield 2,f'{first_msg}: cherry'
     >>> 
-    >>> aa = select_yielder(test_yield('Rick'),'Rick: banaba')
+    >>> aa = select_yielder('Rick: banaba',test_yield('Rick'))
     >>> aa
     1
     '''
-    for current_msg,ret in gen:
+    for ret,current_msg in gen:
         if current_msg == msg:
             return ret
