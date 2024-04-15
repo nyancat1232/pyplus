@@ -62,13 +62,15 @@ class BSPlus:
     bss : list[SoupElement]
     session : aiohttp.ClientSession
     num_of_repeat : int
+    time_wait : float
 
-    def __init__(self,lbss:list[SoupElement],num_of_repeat=5,aiosession=None):
+    def __init__(self,lbss:list[SoupElement],num_of_repeat=5,time_wait:float=1.,aiosession=None):
         self.session = aiosession
         self.bss = []
         for bs in lbss:
             self.bss.append(bs)
         self.num_of_repeat=num_of_repeat
+        self.time_wait=time_wait
             
     def __call__(self,
                  pre_callback_func:Callable|None=None,
@@ -80,11 +82,12 @@ class BSPlus:
                  pre_callback_func:Callable|None=None,
                  post_callback_func:Callable|None=None):
         for bs in self.bss:
-           if pre_callback_func is not None:
-               pre_callback_func(bs)
-           bs.open_bs(max_trial=self.num_of_repeat) 
-           if post_callback_func is not None:
-               post_callback_func(bs)
+            if pre_callback_func is not None:
+                pre_callback_func(bs)
+            sleep(self.time_wait)
+            bs.open_bs(max_trial=self.num_of_repeat) 
+            if post_callback_func is not None:
+                post_callback_func(bs)
         return self
     
     def append(self,se:SoupElement):
