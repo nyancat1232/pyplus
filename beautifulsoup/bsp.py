@@ -64,11 +64,9 @@ class BSPlus:
     num_of_repeat : int
     time_wait : float
 
-    def __init__(self,lbss:list[SoupElement],num_of_repeat=5,time_wait:float=1.,aiosession=None):
+    def __init__(self,num_of_repeat=5,time_wait:float=1.,aiosession=None):
         self.session = aiosession
         self.bss = []
-        for bs in lbss:
-            self.bss.append(bs)
         self.num_of_repeat=num_of_repeat
         self.time_wait=time_wait
             
@@ -77,6 +75,13 @@ class BSPlus:
                  post_callback_func:Callable|None=None):
         return self.do_process(pre_callback_func=pre_callback_func,
                                post_callback_func=post_callback_func)
+    
+    def append_url(self,se:SoupElement)->list[SoupElement]:
+        self.bss.append(se)
+    
+    def __iadd__(self,se:SoupElement):
+        self.append_url(se)
+        return self
     
     def do_process(self,
                  pre_callback_func:Callable|None=None,
