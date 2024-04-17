@@ -70,18 +70,18 @@ class BSPlus:
         self.num_of_repeat=num_of_repeat
         self.time_wait=time_wait
             
-    def __call__(self,
-                 pre_callback_func:Callable|None=None,
-                 post_callback_func:Callable|None=None):
-        return self.do_process(pre_callback_func=pre_callback_func,
-                               post_callback_func=post_callback_func)
-    
     def append_url(self,se:SoupElement)->list[SoupElement]:
         self.bss.append(se)
     
     def __iadd__(self,se:SoupElement):
         self.append_url(se)
         return self
+    
+    def __call__(self,
+                 pre_callback_func:Callable|None=None,
+                 post_callback_func:Callable|None=None):
+        return self.do_process(pre_callback_func=pre_callback_func,
+                               post_callback_func=post_callback_func)
     
     def do_process(self,
                  pre_callback_func:Callable|None=None,
