@@ -45,7 +45,7 @@ def _convert_pgsql_type_to_pandas_type(pgtype:str):
         case 'double precision':
             return pd.Float64Dtype()
         case 'date':
-            return pd.DatetimeTZDtype('ns',tz=ZoneInfo('UTC'))
+            return 'object'
         case 'timestamp without time zone':
             return 'datetime64[ns]'
         case 'timestamp with time zone':
