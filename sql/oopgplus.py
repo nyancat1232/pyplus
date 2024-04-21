@@ -228,7 +228,7 @@ class TableStructure:
         query = text(f'''ALTER TABLE {self.schema_name}.{self.table_name} {','.join(qlines)};''')
         return self.execute_sql_write(query)
 
-    def read_process(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
+    def _read_process(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
         sql_get_types = f'''
         SELECT column_name, data_type, udt_name, domain_name
         FROM information_schema.columns
@@ -281,18 +281,18 @@ class TableStructure:
         yield df_res.copy(), 'read with foreign'
 
     def read(self,ascending=False,columns:list[str]|None=None):
-        return bp.select_yielder(self.read_process(ascending,columns),
+        return bp.select_yielder(self._read_process(ascending,columns),
                                  'read without foreign') 
     
     def read_expand(self,ascending=False,remove_original_id=False):
-        return bp.select_yielder(self.read_process(ascending,remove_original_id=remove_original_id),
+        return bp.select_yielder(self._read_process(ascending,remove_original_id=remove_original_id),
                                  'read with foreign')
         
     def get_types(self):
-        return bp.select_yielder(self.read_process(),'get types')
+        return bp.select_yielder(self._read_process(),'get types')
     
     def get_types_expanded(self):
-        return bp.select_yielder(self.read_process(),'get types with foreign')
+        return bp.select_yielder(self._read_process(),'get types with foreign')
         
     
     def get_local_foreign_id(self,row,column)->int:
