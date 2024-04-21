@@ -117,19 +117,11 @@ class TableStructure:
         else:
             return False
         
-    def get_types_proc(self):
-        df_temp=bp.select_yielder(self.read_process(),'get types')
-        yield df_temp.copy(), 'without foreign'
-
-        df_temp=bp.select_yielder(self.read_process(),'get types with foreign')
-        yield df_temp.copy(), 'with foreign'
-
-
     def get_types(self):
-        return bp.select_yielder(self.get_types_proc(),'without foreign')
+        return bp.select_yielder(self.read_process(),'get types')
     
     def get_types_expanded(self):
-        return bp.select_yielder(self.get_types_proc(),'with foreign')
+        return bp.select_yielder(self.read_process(),'get types with foreign')
         
     
     def refresh_identity(self):
