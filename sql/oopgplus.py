@@ -100,13 +100,12 @@ class TableStructure:
         '''
         return self.execute_sql_read(sql,index_column='current_column_name',drop_duplicates=True)
 
-    def check_cycle_selfref(self):
-        df_foreign = self.get_foreign_table()
-        foreign_tables = df_foreign.to_dict(orient='index')
-        for foreign_col in foreign_tables:
-            match (foreign_tables[foreign_col]['upper_schema'],foreign_tables[foreign_col]['upper_table']):
-                case (self.schema_name,self.table_name):
-                    raise AssertionError("Self ref")
+    def check_cycle_selfref(self,upper_schema,upper_table):
+        match (upper_schema,upper_table):
+            case (self.schema_name,self.table_name):
+                return True
+            case _:
+                return False
 
     def check_if_not_local_column(self,column:str)->bool:
         if '.' not in column:
@@ -131,10 +130,11 @@ class TableStructure:
         types = [df_temp]
         foreigns = self.get_foreign_table().to_dict(orient='index')
         for foreign in foreigns:
-            ts_foreign = TableStructure(foreigns[foreign]['upper_schema'],foreigns[foreign]['upper_table'],self.engine)
-            df = ts_foreign.get_types_expanded()
-            df = df.rename(index={v:f'{foreign}.{v}' for v in df.index})
-            types += [df]
+            if not self.check_cycle_selfref(foreigns[foreign]['upper_schema'],foreigns[foreign]['upper_table']):
+                ts_foreign = TableStructure(foreigns[foreign]['upper_schema'],foreigns[foreign]['upper_table'],self.engine)
+                df = ts_foreign.get_types_expanded()
+                df = df.rename(index={v:f'{foreign}.{v}' for v in df.index})
+                types += [df]
         df_ret = pd.concat(types)
         yield df_ret, 'with foreign'
 
@@ -285,12 +285,13 @@ class TableStructure:
         df_foreign = self.get_foreign_table()
         foreign_tables = df_foreign.to_dict(orient='index')
         for foreign_col in foreign_tables:
-            ts = TableStructure(foreign_tables[foreign_col]['upper_schema'],foreign_tables[foreign_col]['upper_table'],self.engine)
-            df_ftable=ts.read_expand(ascending=ascending)
-            df_ftable=df_ftable.rename(columns={col:f'{foreign_col}.{col}' for col in df_ftable.columns.to_list()})
-            df = pd.merge(df,df_ftable,'left',left_on=foreign_col,right_index=True)
-            if remove_original_id:
-                del df[foreign_col]
+            if not self.check_cycle_selfref(foreign_tables[foreign_col]['upper_schema'],foreign_tables[foreign_col]['upper_table']):
+                ts = TableStructure(foreign_tables[foreign_col]['upper_schema'],foreign_tables[foreign_col]['upper_table'],self.engine)
+                df_ftable=ts.read_expand(ascending=ascending)
+                df_ftable=df_ftable.rename(columns={col:f'{foreign_col}.{col}' for col in df_ftable.columns.to_list()})
+                df = pd.merge(df,df_ftable,'left',left_on=foreign_col,right_index=True)
+                if remove_original_id:
+                    del df[foreign_col]
         
         yield df.sort_index(ascending=ascending).copy(), 'read with foreign'
 
