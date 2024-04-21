@@ -268,22 +268,22 @@ class TableStructure:
 
         sql = f'''SELECT * FROM {self.schema_name}.{self.table_name}
         '''
-        df_exec_res = self.execute_sql_read(sql)
-        column_identity = df_exec_res.index.name
+        df_content = self.execute_sql_read(sql)
+        column_identity = df_content.index.name
 
         conv_type = {column_name:_convert_pgsql_type_to_pandas_type(df_types['data_type'][column_name]) for column_name 
                      in df_types.index}
-        df_exec_res = df_exec_res.reset_index()
-        df_exec_res = df_exec_res.astype(conv_type)
-        df_exec_res = df_exec_res.set_index(column_identity)
-        df_exec_res = df_exec_res.sort_index(ascending=ascending)
+        df_content = df_content.reset_index()
+        df_content = df_content.astype(conv_type)
+        df_content = df_content.set_index(column_identity)
+        df_content = df_content.sort_index(ascending=ascending)
 
         if columns is not None:
-            df_exec_res = df_exec_res[columns]
+            df_content = df_content[columns]
 
-        yield df_exec_res.copy(), 'read without foreign'
+        yield df_content.copy(), 'read without foreign'
 
-        df = df_exec_res.copy()
+        df = df_content.copy()
         df_foreign = self.get_foreign_table()
         foreign_tables = df_foreign.to_dict(orient='index')
         for foreign_col in foreign_tables:
