@@ -276,8 +276,7 @@ class TableStructure:
                 df_ftable_types=df_ftable_types.rename(index=row_changer)
                 df_types = pd.concat([df_types,df_ftable_types])
                 if remove_original_id:
-                    raise NotImplementedError('No! remove')
-                    del df_types.loc[foreign_col]
+                    df_types = df_types.drop(index=foreign_col)
 
                 df_ftable=ts.read_expand(ascending=ascending)
                 column_changer={col:f'{foreign_col}.{col}' for col in df_ftable.columns.to_list()}
