@@ -119,8 +119,6 @@ class TableStructure:
             return False
         
     def get_types_proc(self):
-        self.check_cycle_selfref()
-
         sql = f'''
         SELECT column_name, data_type, udt_name, domain_name
         FROM information_schema.columns
@@ -265,8 +263,6 @@ class TableStructure:
         return self.execute_sql_write(query)
 
     def read_process(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
-        self.check_cycle_selfref()
-
         sql = f'''SELECT * FROM {self.schema_name}.{self.table_name}
         '''
         df_exec_res = self.execute_sql_read(sql)
