@@ -274,9 +274,11 @@ class TableStructure:
                 if remove_original_id:
                     del df_content[foreign_col]
             else:
+                renamer={f'{col}__selfpost':f'{foreign_col}.{col}' for col in df_content.columns.to_list()}
                 df_content = pd.merge(df_content,df_content,'left',
-                                      left_on=foreign_col,right_index=True,
-                                      suffixes=('','_rec'))
+                                    left_on=foreign_col,right_index=True,
+                                    suffixes=('','__selfpost'))
+                df_content = df_content.rename(columns=renamer)
 
                     
 
