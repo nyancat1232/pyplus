@@ -100,7 +100,7 @@ class TableStructure:
         '''
         return self.execute_sql_read(sql,index_column='current_column_name',drop_duplicates=True)
 
-    def check_cycle_selfref(self,upper_schema,upper_table):
+    def check_selfref(self,upper_schema,upper_table):
         match (upper_schema,upper_table):
             case (self.schema_name,self.table_name):
                 return True
@@ -257,7 +257,7 @@ class TableStructure:
         df_foreign = self.get_foreign_table()
         foreign_tables = df_foreign.to_dict(orient='index')
         for foreign_col in foreign_tables:
-            if not self.check_cycle_selfref(foreign_tables[foreign_col]['upper_schema'],foreign_tables[foreign_col]['upper_table']):
+            if not self.check_selfref(foreign_tables[foreign_col]['upper_schema'],foreign_tables[foreign_col]['upper_table']):
                 ts = TableStructure(foreign_tables[foreign_col]['upper_schema'],foreign_tables[foreign_col]['upper_table'],self.engine)
                 df_ftable_types=ts.get_types_expanded()
                 row_changer={row:f'{foreign_col}.{row}' for row in df_ftable_types.index.to_list()}
