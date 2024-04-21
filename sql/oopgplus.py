@@ -118,13 +118,7 @@ class TableStructure:
             return False
         
     def get_types_proc(self):
-        sql = f'''
-        SELECT column_name, data_type, udt_name, domain_name
-        FROM information_schema.columns
-        WHERE table_schema = '{self.schema_name}' AND 
-        table_name = '{self.table_name}';
-        '''
-        df_temp=self.execute_sql_read(sql,index_column='column_name')
+        df_temp=bp.select_yielder(self.read_process(),'get types')
         yield df_temp.copy(), 'without foreign'
 
         types = [df_temp]
@@ -263,10 +257,19 @@ class TableStructure:
         return self.execute_sql_write(query)
 
     def read_process(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
+        sql_get_types = f'''
+        SELECT column_name, data_type, udt_name, domain_name
+        FROM information_schema.columns
+        WHERE table_schema = '{self.schema_name}' AND 
+        table_name = '{self.table_name}';
+        '''
+        df_types=self.execute_sql_read(sql_get_types,index_column='column_name')
+        yield df_types.copy(), 'get types'
+
         sql = f'''SELECT * FROM {self.schema_name}.{self.table_name}
         '''
         df_exec_res = self.execute_sql_read(sql)
-        df_col_types = self.get_types()
+        df_col_types = df_types
         column_identity = df_exec_res.index.name
 
         conv_type = {column_name:_convert_pgsql_type_to_pandas_type(df_col_types['data_type'][column_name]) for column_name 
