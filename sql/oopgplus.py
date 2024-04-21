@@ -274,17 +274,23 @@ class TableStructure:
                 if remove_original_id:
                     del df_content[foreign_col]
             else:
-                df_content_original = df_content.copy()
+                try:
+                    tos=df_content.index.to_list()
+                    froms=df_content[foreign_col].to_list()
+                    gr=nx.DiGraph(zip(froms,tos))
+                    nx.find_cycle(gr)
+                except nx.NetworkXNoCycle as noe:
+                    df_content_original = df_content.copy()
 
-                current_selfref=foreign_col
-                while not df_content[current_selfref].isnull().all():
-                    renamer = {f'{col}__selfpost':f'{current_selfref}.{col}' for col in df_content.columns}
-                    df_content = pd.merge(df_content,df_content_original,'left',
-                                        left_on=current_selfref,right_index=True,
-                                        suffixes=('','__selfpost'))
-                    df_content =df_content.rename(columns=renamer)
+                    current_selfref=foreign_col
+                    while not df_content[current_selfref].isnull().all():
+                        renamer = {f'{col}__selfpost':f'{current_selfref}.{col}' for col in df_content.columns}
+                        df_content = pd.merge(df_content,df_content_original,'left',
+                                            left_on=current_selfref,right_index=True,
+                                            suffixes=('','__selfpost'))
+                        df_content =df_content.rename(columns=renamer)
 
-                    current_selfref=f'{current_selfref}.{foreign_col}'
+                        current_selfref=f'{current_selfref}.{foreign_col}'
 
                     
 
