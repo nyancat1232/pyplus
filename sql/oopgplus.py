@@ -189,15 +189,12 @@ class TableStructure:
         convert_table
         return convert_table
 
-
-
     def __init__(self,schema_name:str,table_name:str,
                  engine:sqlalchemy.Engine):
         self.schema_name = schema_name
         self.table_name = table_name
         self.engine = engine
         self._identity_column = self.refresh_identity()
-
 
     def execute_sql_read(self,sql,index_column:str|None=None,drop_duplicates:bool=False)->pd.DataFrame:
         with self.engine.connect() as conn:
@@ -221,9 +218,7 @@ class TableStructure:
             
         
         return self.read()
-            
-            
-
+    
     def append_column(self,**type_dict):
         for rc in _reserved_columns:
             if rc in type_dict:
