@@ -101,6 +101,8 @@ class TableStructure:
         return self.execute_sql_read(sql,index_column='current_column_name',drop_duplicates=True)
     
     def get_types_proc(self):
+        self.check_cycle_selfref()
+
         sql = f'''
         SELECT column_name, data_type, udt_name, domain_name
         FROM information_schema.columns
@@ -245,6 +247,8 @@ class TableStructure:
         return self.execute_sql_write(query)
 
     def read_process(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
+        self.check_cycle_selfref()
+
         sql = f'''SELECT * FROM {self.schema_name}.{self.table_name}
         '''
         df_exec_res = self.execute_sql_read(sql)
@@ -284,6 +288,14 @@ class TableStructure:
         return bp.select_yielder(self.read_process(ascending,remove_original_id=remove_original_id),
                                  'read with foreign')
     
+    def check_cycle_selfref(self):
+        df_foreign = self.get_foreign_table()
+        foreign_tables = df_foreign.to_dict(orient='index')
+        for foreign_col in foreign_tables:
+            match (foreign_tables[foreign_col]['upper_schema'],foreign_tables[foreign_col]['upper_table']):
+                case (self.schema_name,self.table_name):
+                    raise AssertionError("Self ref")
+
     def check_if_not_local_column(self,column:str)->bool:
         if '.' not in column:
             return False
