@@ -7,6 +7,7 @@ from datetime import datetime,date
 from zoneinfo import ZoneInfo
 import numpy as np
 import pyplus.builtin as bp
+import networkx as nx
 
 def _apply_escaping(sentence:str):
     return sentence.replace("'","''")
@@ -275,25 +276,13 @@ class TableStructure:
             else:
                 indexes = df_content.index.to_list()
                 refs = df_content[foreign_col].to_list()
+                graph = nx.DiGraph(zip(indexes,refs))
+                try:
+                    nx.find_cycle(graph)
+                except nx.NetworkXNoCycle as noc:
+                    pass
+                    
 
-                def get_checkers():
-                    checkers=[]
-                    for fr,to in zip(indexes,refs):
-                        indiv_set = set([fr,to]) 
-                        nowhere = True
-                        for checker in checkers:
-                            if (indiv_set - checker) != indiv_set:
-                                checker |= indiv_set
-                                nowhere = False
-                        if nowhere:
-                            checkers.append(indiv_set)
-                    return checkers.copy()
-                
-                checkers = get_checkers()
-                for checker in checkers:
-                    if pd.NA not in checker:
-                        raise AssertionError("Cycle detected.")
-        
         yield df_types.copy(), 'get types with foreign'
 
         df_res = df_content.sort_index(ascending=ascending)
