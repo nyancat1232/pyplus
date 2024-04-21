@@ -288,7 +288,8 @@ class TableStructure:
             if not self.check_cycle_selfref(foreign_tables[foreign_col]['upper_schema'],foreign_tables[foreign_col]['upper_table']):
                 ts = TableStructure(foreign_tables[foreign_col]['upper_schema'],foreign_tables[foreign_col]['upper_table'],self.engine)
                 df_ftable=ts.read_expand(ascending=ascending)
-                df_ftable=df_ftable.rename(columns={col:f'{foreign_col}.{col}' for col in df_ftable.columns.to_list()})
+                column_changer={col:f'{foreign_col}.{col}' for col in df_ftable.columns.to_list()}
+                df_ftable=df_ftable.rename(columns=column_changer)
                 df_content = pd.merge(df_content,df_ftable,'left',left_on=foreign_col,right_index=True)
                 if remove_original_id:
                     del df_content[foreign_col]
