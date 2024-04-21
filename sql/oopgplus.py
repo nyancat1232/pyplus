@@ -269,11 +269,10 @@ class TableStructure:
         sql = f'''SELECT * FROM {self.schema_name}.{self.table_name}
         '''
         df_exec_res = self.execute_sql_read(sql)
-        df_col_types = df_types
         column_identity = df_exec_res.index.name
 
-        conv_type = {column_name:_convert_pgsql_type_to_pandas_type(df_col_types['data_type'][column_name]) for column_name 
-                     in df_col_types.index}
+        conv_type = {column_name:_convert_pgsql_type_to_pandas_type(df_types['data_type'][column_name]) for column_name 
+                     in df_types.index}
         df_exec_res = df_exec_res.reset_index()
         df_exec_res = df_exec_res.astype(conv_type)
         df_exec_res = df_exec_res.set_index(column_identity)
