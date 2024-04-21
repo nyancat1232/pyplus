@@ -99,7 +99,25 @@ class TableStructure:
         AND KCU.table_name='{self.table_name}';
         '''
         return self.execute_sql_read(sql,index_column='current_column_name',drop_duplicates=True)
-    
+
+    def check_cycle_selfref(self):
+        df_foreign = self.get_foreign_table()
+        foreign_tables = df_foreign.to_dict(orient='index')
+        for foreign_col in foreign_tables:
+            match (foreign_tables[foreign_col]['upper_schema'],foreign_tables[foreign_col]['upper_table']):
+                case (self.schema_name,self.table_name):
+                    raise AssertionError("Self ref")
+
+    def check_if_not_local_column(self,column:str)->bool:
+        if '.' not in column:
+            return False
+        current_column = column.split(".")[0]
+
+        if current_column in self.get_foreign_table().index:
+            return True
+        else:
+            return False
+        
     def get_types_proc(self):
         self.check_cycle_selfref()
 
@@ -287,24 +305,6 @@ class TableStructure:
     def read_expand(self,ascending=False,remove_original_id=False):
         return bp.select_yielder(self.read_process(ascending,remove_original_id=remove_original_id),
                                  'read with foreign')
-    
-    def check_cycle_selfref(self):
-        df_foreign = self.get_foreign_table()
-        foreign_tables = df_foreign.to_dict(orient='index')
-        for foreign_col in foreign_tables:
-            match (foreign_tables[foreign_col]['upper_schema'],foreign_tables[foreign_col]['upper_table']):
-                case (self.schema_name,self.table_name):
-                    raise AssertionError("Self ref")
-
-    def check_if_not_local_column(self,column:str)->bool:
-        if '.' not in column:
-            return False
-        current_column = column.split(".")[0]
-
-        if current_column in self.get_foreign_table().index:
-            return True
-        else:
-            return False
         
     def get_local_foreign_id(self,row,column)->int:
         '''
