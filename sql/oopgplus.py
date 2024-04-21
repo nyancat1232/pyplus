@@ -121,16 +121,8 @@ class TableStructure:
         df_temp=bp.select_yielder(self.read_process(),'get types')
         yield df_temp.copy(), 'without foreign'
 
-        types = [df_temp]
-        foreigns = self.get_foreign_table().to_dict(orient='index')
-        for foreign in foreigns:
-            if not self.check_cycle_selfref(foreigns[foreign]['upper_schema'],foreigns[foreign]['upper_table']):
-                ts_foreign = TableStructure(foreigns[foreign]['upper_schema'],foreigns[foreign]['upper_table'],self.engine)
-                df = ts_foreign.get_types_expanded()
-                df = df.rename(index={v:f'{foreign}.{v}' for v in df.index})
-                types += [df]
-        df_ret = pd.concat(types)
-        yield df_ret, 'with foreign'
+        df_temp=bp.select_yielder(self.read_process(),'get types with foreign')
+        yield df_temp.copy(), 'with foreign'
 
 
     def get_types(self):
@@ -287,6 +279,14 @@ class TableStructure:
         for foreign_col in foreign_tables:
             if not self.check_cycle_selfref(foreign_tables[foreign_col]['upper_schema'],foreign_tables[foreign_col]['upper_table']):
                 ts = TableStructure(foreign_tables[foreign_col]['upper_schema'],foreign_tables[foreign_col]['upper_table'],self.engine)
+                df_ftable_types=ts.get_types_expanded()
+                row_changer={row:f'{foreign_col}.{row}' for row in df_ftable_types.index.to_list()}
+                df_ftable_types=df_ftable_types.rename(index=row_changer)
+                df_types = pd.concat([df_types,df_ftable_types])
+                if remove_original_id:
+                    raise NotImplementedError('No! remove')
+                    del df_types.loc[foreign_col]
+
                 df_ftable=ts.read_expand(ascending=ascending)
                 column_changer={col:f'{foreign_col}.{col}' for col in df_ftable.columns.to_list()}
                 df_ftable=df_ftable.rename(columns=column_changer)
@@ -294,6 +294,8 @@ class TableStructure:
                 if remove_original_id:
                     del df_content[foreign_col]
         
+        yield df_types.copy(), 'get types with foreign'
+
         df_res = df_content.sort_index(ascending=ascending)
         if columns is not None:
             df_res = df_res[columns]
