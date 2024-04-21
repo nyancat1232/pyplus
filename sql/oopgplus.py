@@ -266,9 +266,9 @@ class TableStructure:
         df_types=self.execute_sql_read(sql_get_types,index_column='column_name')
         yield df_types.copy(), 'get types'
 
-        sql = f'''SELECT * FROM {self.schema_name}.{self.table_name}
+        sql_content = f'''SELECT * FROM {self.schema_name}.{self.table_name}
         '''
-        df_content = self.execute_sql_read(sql)
+        df_content = self.execute_sql_read(sql_content)
         column_identity = df_content.index.name
 
         conv_type = {column_name:_convert_pgsql_type_to_pandas_type(df_types['data_type'][column_name]) for column_name 
