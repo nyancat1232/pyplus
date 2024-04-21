@@ -276,12 +276,11 @@ class TableStructure:
         df_content = df_content.reset_index()
         df_content = df_content.astype(conv_type)
         df_content = df_content.set_index(column_identity)
-        df_content = df_content.sort_index(ascending=ascending)
 
+        df_res = df_content.sort_index(ascending=ascending)
         if columns is not None:
-            df_content = df_content[columns]
-
-        yield df_content.copy(), 'read without foreign'
+            df_res = df_res[columns]
+        yield df_res.copy(), 'read without foreign'
 
         df_foreign = self.get_foreign_table()
         foreign_tables = df_foreign.to_dict(orient='index')
@@ -294,8 +293,10 @@ class TableStructure:
                 if remove_original_id:
                     del df_content[foreign_col]
         
-        df_content = df_content.sort_index(ascending=ascending)
-        yield df_content.copy(), 'read with foreign'
+        df_res = df_content.sort_index(ascending=ascending)
+        if columns is not None:
+            df_res = df_res[columns]
+        yield df_res.copy(), 'read with foreign'
 
     def read(self,ascending=False,columns:list[str]|None=None):
         return bp.select_yielder(self.read_process(ascending,columns),
