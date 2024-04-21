@@ -116,14 +116,7 @@ class TableStructure:
             return True
         else:
             return False
-        
-    def get_types(self):
-        return bp.select_yielder(self.read_process(),'get types')
-    
-    def get_types_expanded(self):
-        return bp.select_yielder(self.read_process(),'get types with foreign')
-        
-    
+
     def refresh_identity(self):
         sql = f'''SELECT attname as identity_column
         FROM pg_attribute 
@@ -300,6 +293,13 @@ class TableStructure:
         return bp.select_yielder(self.read_process(ascending,remove_original_id=remove_original_id),
                                  'read with foreign')
         
+    def get_types(self):
+        return bp.select_yielder(self.read_process(),'get types')
+    
+    def get_types_expanded(self):
+        return bp.select_yielder(self.read_process(),'get types with foreign')
+        
+    
     def get_local_foreign_id(self,row,column)->int:
         '''
         get a local foreign id of expanded dataframe.
