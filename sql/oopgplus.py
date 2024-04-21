@@ -294,7 +294,8 @@ class TableStructure:
                 if remove_original_id:
                     del df_content[foreign_col]
         
-        yield df_content.sort_index(ascending=ascending).copy(), 'read with foreign'
+        df_content = df_content.sort_index(ascending=ascending)
+        yield df_content.copy(), 'read with foreign'
 
     def read(self,ascending=False,columns:list[str]|None=None):
         return bp.select_yielder(self.read_process(ascending,columns),
