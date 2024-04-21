@@ -6,6 +6,7 @@ from typing import Self
 from datetime import datetime,date
 from zoneinfo import ZoneInfo
 import numpy as np
+import pyplus.builtin as bp
 
 def _apply_escaping(sentence:str):
     return sentence.replace("'","''")
@@ -236,7 +237,7 @@ class TableStructure:
         query = text(f'''ALTER TABLE {self.schema_name}.{self.table_name} {','.join(qlines)};''')
         return self.execute_sql_write(query)
 
-    def read(self,ascending=False,columns:list[str]|None=None):
+    def read_process(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
         sql = f'''SELECT * FROM {self.schema_name}.{self.table_name}
         '''
         df_exec_res = self.execute_sql_read(sql)
@@ -253,11 +254,9 @@ class TableStructure:
         if columns is not None:
             df_exec_res = df_exec_res[columns]
 
-        return df_exec_res
-    
-    def read_expand(self,ascending=False,remove_original_id=False):
-        df = self.read()
-        
+        yield df_exec_res.copy(), 'read without foreign'
+
+        df = df_exec_res.copy()
         df_foreign = self.get_foreign_table()
         foreign_tables = df_foreign.to_dict(orient='index')
         for foreign_col in foreign_tables:
@@ -268,7 +267,15 @@ class TableStructure:
             if remove_original_id:
                 del df[foreign_col]
         
-        return df.sort_index(ascending=ascending)
+        yield df.sort_index(ascending=ascending).copy(), 'read with foreign'
+
+    def read(self,ascending=False,columns:list[str]|None=None):
+        return bp.select_yielder(self.read_process(ascending,columns),
+                                 'read without foreign') 
+    
+    def read_expand(self,ascending=False,remove_original_id=False):
+        return bp.select_yielder(self.read_process(ascending,remove_original_id=remove_original_id),
+                                 'read with foreign')
     
     def check_if_not_local_column(self,column:str)->bool:
         if '.' not in column:
