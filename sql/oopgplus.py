@@ -274,13 +274,8 @@ class TableStructure:
                 if remove_original_id:
                     del df_content[foreign_col]
             else:
-                indexes = df_content.index.to_list()
-                refs = df_content[foreign_col].to_list()
-                graph = nx.DiGraph(zip(indexes,refs))
-                try:
-                    nx.find_cycle(graph)
-                except nx.NetworkXNoCycle as noc:
-                    pass
+                df_content = pd.merge(df_content,df_content,'left',left_on=foreign_col,right_index=True)
+
                     
 
         yield df_types.copy(), 'get types with foreign'
