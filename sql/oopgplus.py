@@ -283,7 +283,6 @@ class TableStructure:
 
         yield df_content.copy(), 'read without foreign'
 
-        df_content2 = df_content.copy()
         df_foreign = self.get_foreign_table()
         foreign_tables = df_foreign.to_dict(orient='index')
         for foreign_col in foreign_tables:
@@ -291,11 +290,11 @@ class TableStructure:
                 ts = TableStructure(foreign_tables[foreign_col]['upper_schema'],foreign_tables[foreign_col]['upper_table'],self.engine)
                 df_ftable=ts.read_expand(ascending=ascending)
                 df_ftable=df_ftable.rename(columns={col:f'{foreign_col}.{col}' for col in df_ftable.columns.to_list()})
-                df_content2 = pd.merge(df_content2,df_ftable,'left',left_on=foreign_col,right_index=True)
+                df_content = pd.merge(df_content,df_ftable,'left',left_on=foreign_col,right_index=True)
                 if remove_original_id:
-                    del df_content2[foreign_col]
+                    del df_content[foreign_col]
         
-        yield df_content2.sort_index(ascending=ascending).copy(), 'read with foreign'
+        yield df_content.sort_index(ascending=ascending).copy(), 'read with foreign'
 
     def read(self,ascending=False,columns:list[str]|None=None):
         return bp.select_yielder(self.read_process(ascending,columns),
