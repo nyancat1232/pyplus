@@ -100,17 +100,17 @@ class TableStructure:
         '''
         return self.execute_sql_read(sql,index_column='current_column_name',drop_duplicates=True)
     
-    def get_types(self):
+    def get_types_proc(self):
         sql = f'''
         SELECT column_name, data_type, udt_name, domain_name
         FROM information_schema.columns
         WHERE table_schema = '{self.schema_name}' AND 
         table_name = '{self.table_name}';
         '''
-        return self.execute_sql_read(sql,index_column='column_name')
-    
-    def get_types_expanded(self):
-        types = [self.get_types()]
+        df_temp=self.execute_sql_read(sql,index_column='column_name')
+        yield df_temp.copy(), 'without foreign'
+
+        types = [df_temp]
         foreigns = self.get_foreign_table().to_dict(orient='index')
         for foreign in foreigns:
             ts_foreign = TableStructure(foreigns[foreign]['upper_schema'],foreigns[foreign]['upper_table'],self.engine)
@@ -118,7 +118,14 @@ class TableStructure:
             df = df.rename(index={v:f'{foreign}.{v}' for v in df.index})
             types += [df]
         df_ret = pd.concat(types)
-        return df_ret
+        yield df_ret, 'with foreign'
+
+
+    def get_types(self):
+        return bp.select_yielder(self.get_types_proc(),'without foreign')
+    
+    def get_types_expanded(self):
+        return bp.select_yielder(self.get_types_proc(),'with foreign')
         
     
     def refresh_identity(self):
