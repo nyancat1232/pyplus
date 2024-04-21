@@ -274,7 +274,9 @@ class TableStructure:
                 if remove_original_id:
                     del df_content[foreign_col]
             else:
-                df_content = pd.merge(df_content,df_content,'left',left_on=foreign_col,right_index=True)
+                df_content = pd.merge(df_content,df_content,'left',
+                                      left_on=foreign_col,right_index=True,
+                                      suffixes=('','_rec'))
 
                     
 
