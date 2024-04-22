@@ -303,14 +303,14 @@ class TableStructure:
         df_res = df_content.sort_index(ascending=ascending)
         yield df_res.copy(), 'read with foreign'
 
-    def read(self,ascending=False,columns:list[str]|None=None):
+    def read(self,ascending=False,columns:list[str]|None=None)->pd.DataFrame:
         df_res = bp.select_yielder(self._read_process(ascending,columns),
                                  'read without foreign') 
         if columns is not None:
             df_res = df_res[columns]
         return df_res.copy()
     
-    def read_expand(self,ascending=False,remove_original_id=False,columns:list[str]|None=None):
+    def read_expand(self,ascending=False,remove_original_id=False,columns:list[str]|None=None)->pd.DataFrame:
         df_res = bp.select_yielder(self._read_process(ascending,remove_original_id=remove_original_id,columns=columns),
                                  'read with foreign')
         if columns is not None:
