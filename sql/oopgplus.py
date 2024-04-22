@@ -292,6 +292,9 @@ class TableStructure:
                         df_content =df_content.rename(columns=renamer)
 
                         current_selfref=f'{current_selfref}.{foreign_col}'
+                    else:
+                        del df_content[current_selfref]
+                    
 
                     
 
