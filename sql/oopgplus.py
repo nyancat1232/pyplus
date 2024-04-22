@@ -251,8 +251,6 @@ class TableStructure:
         df_content = df_content.set_index(column_identity)
 
         df_res = df_content.sort_index(ascending=ascending)
-        if columns is not None:
-            df_res = df_res[columns]
         yield df_res.copy(), 'read without foreign'
 
         df_foreign = self.get_foreign_table()
@@ -300,17 +298,21 @@ class TableStructure:
         yield df_types.copy(), 'get types with foreign'
 
         df_res = df_content.sort_index(ascending=ascending)
-        if columns is not None:
-            df_res = df_res[columns]
         yield df_res.copy(), 'read with foreign'
 
     def read(self,ascending=False,columns:list[str]|None=None):
-        return bp.select_yielder(self._read_process(ascending,columns),
+        df_res = bp.select_yielder(self._read_process(ascending,columns),
                                  'read without foreign') 
+        if columns is not None:
+            df_res = df_res[columns]
+        return df_res.copy()
     
-    def read_expand(self,ascending=False,remove_original_id=False):
-        return bp.select_yielder(self._read_process(ascending,remove_original_id=remove_original_id),
+    def read_expand(self,ascending=False,remove_original_id=False,columns:list[str]|None=None):
+        df_res = bp.select_yielder(self._read_process(ascending,remove_original_id=remove_original_id,columns=columns),
                                  'read with foreign')
+        if columns is not None:
+            df_res = df_res[columns]
+        return df_res.copy()
         
     def get_types(self):
         return bp.select_yielder(self._read_process(),'get types')
