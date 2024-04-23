@@ -74,6 +74,18 @@ class BSPlus:
         self.bss.append(se)
     
     def __iadd__(self,se:SoupElement):
+        '''
+        Add a soup element
+        
+        Parameters
+        ----------
+        se : SoupElement
+            SoupElement for an url.
+        
+        See Also
+        --------
+        append_url(self,se)
+        '''
         self.append_url(se)
         return self
     
