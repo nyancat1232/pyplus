@@ -493,17 +493,19 @@ class SchemaStructure:
         ts = TableStructure(self.schema_name,table_name,self.engine)
         return ts
 
-    def create_domain(self,type_name:str,base_type:str):
-        sql = text(f'''CREATE DOMAIN {self.schema_name}.{type_name} 
-                             AS {base_type};
-        ''')
-        return self.execute_sql_write(sql)
-
-def create_schema(engine:sqlalchemy.Engine,schema_name:str)->SchemaStructure:
-    sql = text(f'''CREATE SCHEMA {schema_name}''')
+def _execute_globally(engine:sqlalchemy.Engine,sql:str):
     with engine.connect() as conn:
         conn.execute(sql)
         conn.commit()
+
+
+def create_domain(engine:sqlalchemy.Engine,type_name:str,base_type:str):
+    sql = text(f'''CREATE DOMAIN "{type_name}" AS {base_type};''')
+    _execute_globally(engine,sql)
+
+def create_schema(engine:sqlalchemy.Engine,schema_name:str)->SchemaStructure:
+    sql = text(f'''CREATE SCHEMA "{schema_name}" ''')
+    _execute_globally(engine,sql)
     return SchemaStructure(schema_name,engine)
 
 class SQLALchemyPlus:
