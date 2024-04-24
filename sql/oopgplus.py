@@ -271,28 +271,31 @@ class TableStructure:
                 if remove_original_id:
                     del df_content[foreign_col]
             else:
-                try:
-                    tos=df_content.replace({np.nan: None}).index.to_list()
-                    froms=df_content[foreign_col].replace({np.nan: None}).to_list()
-                    exclude_none = [(fr,to) for fr,to in zip(froms,tos)
-                                    if (fr is not None) and( to is not None)]
+                if df_content[foreign_col].isnull().all():
+                    continue
+                else:
+                    try:
+                        tos=df_content.replace({np.nan: None}).index.to_list()
+                        froms=df_content[foreign_col].replace({np.nan: None}).to_list()
+                        exclude_none = [(fr,to) for fr,to in zip(froms,tos)
+                                        if (fr is not None) and( to is not None)]
 
-                    gr=nx.DiGraph(exclude_none)
-                    nx.find_cycle(gr)
-                except nx.NetworkXNoCycle as noc:
-                    df_content_original = df_content.copy()
+                        gr=nx.DiGraph(exclude_none)
+                        nx.find_cycle(gr)
+                    except nx.NetworkXNoCycle as noc:
+                        df_content_original = df_content.copy()
 
-                    current_selfref=foreign_col
-                    while not df_content[current_selfref].isnull().all():
-                        renamer = {f'{col}__selfpost':f'{current_selfref}.{col}' for col in df_content.columns}
-                        df_content = pd.merge(df_content,df_content_original,'left',
-                                            left_on=current_selfref,right_index=True,
-                                            suffixes=('','__selfpost'))
-                        df_content =df_content.rename(columns=renamer)
+                        current_selfref=foreign_col
+                        while not df_content[current_selfref].isnull().all():
+                            renamer = {f'{col}__selfpost':f'{current_selfref}.{col}' for col in df_content.columns}
+                            df_content = pd.merge(df_content,df_content_original,'left',
+                                                left_on=current_selfref,right_index=True,
+                                                suffixes=('','__selfpost'))
+                            df_content =df_content.rename(columns=renamer)
 
-                        current_selfref=f'{current_selfref}.{foreign_col}'
-                    else:
-                        del df_content[current_selfref]
+                            current_selfref=f'{current_selfref}.{foreign_col}'
+                        else:
+                            del df_content[current_selfref]
                     
 
                     
