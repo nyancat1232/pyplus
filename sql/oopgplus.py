@@ -90,8 +90,7 @@ class TableStructure:
         sql = f'''
         SELECT KCU.column_name AS current_column_name,
             CCU.table_schema AS upper_schema, 
-            CCU.table_name AS upper_table,
-            CCU.column_name AS  upper_column_name
+            CCU.table_name AS upper_table
         FROM information_schema.key_column_usage AS KCU
         JOIN information_schema.constraint_column_usage AS CCU ON KCU.constraint_name = CCU.constraint_name
         JOIN information_schema.table_constraints AS TC ON KCU.constraint_name = TC.constraint_name
