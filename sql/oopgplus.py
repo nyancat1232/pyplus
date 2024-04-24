@@ -302,6 +302,12 @@ class TableStructure:
         df_rwf = df_content.sort_index(ascending=ascending)
         yield df_rwf.copy(), 'read with foreign'
 
+        df_address=df_rwof.copy()
+        col_sub = {col:col[:col.find('.')] for col in df_rwf.columns if col.find('.')!=-1}
+        for col in col_sub:
+            df_address[col] = df_address[col_sub[col]]
+        yield df_address.copy(), 'addresses'
+
     def read(self,ascending=False,columns:list[str]|None=None)->pd.DataFrame:
         df_res = bp.select_yielder(self._read_process(ascending,columns),
                                  'read without foreign') 
@@ -340,13 +346,9 @@ class TableStructure:
             foreign id.
         
         '''
-        df_read = self.read()
-        df_expand = self.read_expand()
-        col_sub = {col:col[:col.find('.')] for col in df_expand.columns if col.find('.')!=-1}
-        for col in col_sub:
-            df_read[col] = df_read[col_sub[col]]
+        df = bp.select_yielder(self._read_process(),'addresses')
 
-        return df_read.loc[row,column]
+        return df.loc[row,column]
 
     def upload(self,id_row:int,**kwarg):
         cp = kwarg.copy()
