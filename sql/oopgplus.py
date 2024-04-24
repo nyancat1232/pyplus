@@ -249,8 +249,8 @@ class TableStructure:
         df_content = df_content.astype(conv_type)
         df_content = df_content.set_index(column_identity)
 
-        df_res = df_content.sort_index(ascending=ascending)
-        yield df_res.copy(), 'read without foreign'
+        df_rwof = df_content.sort_index(ascending=ascending)
+        yield df_rwof.copy(), 'read without foreign'
 
         df_foreign = self.get_foreign_table()
         foreign_tables = df_foreign.to_dict(orient='index')
@@ -299,8 +299,8 @@ class TableStructure:
 
         yield df_types.copy(), 'get types with foreign'
 
-        df_res = df_content.sort_index(ascending=ascending)
-        yield df_res.copy(), 'read with foreign'
+        df_rwf = df_content.sort_index(ascending=ascending)
+        yield df_rwf.copy(), 'read with foreign'
 
     def read(self,ascending=False,columns:list[str]|None=None)->pd.DataFrame:
         df_res = bp.select_yielder(self._read_process(ascending,columns),
