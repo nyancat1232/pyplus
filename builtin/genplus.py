@@ -1,6 +1,6 @@
-from typing import Generator,Any
+from typing import Generator,Any,Literal
 
-def select_yielder(gen:Generator[tuple[Any,str],Any,None],msg:str):
+def select_yielder(gen:Generator[tuple[Any,str],Any|Generator,None],msg:str,rettype:Literal['data','generator']='data'):
     '''
     catch a return of generator. yield type must be like (value:Any,msg:str).
 
@@ -8,6 +8,10 @@ def select_yielder(gen:Generator[tuple[Any,str],Any,None],msg:str):
     ----------
     gen : Generator
         generator that yields (value,msg).
+    msg : str
+        return when generator approches to the msg.
+    rettype : Literal['data','generator']
+        return data if data or gererator if generator. If sender is needed, choose 'generator'.
     
     Returns
     --------
@@ -45,4 +49,10 @@ def select_yielder(gen:Generator[tuple[Any,str],Any,None],msg:str):
     '''
     for ret,current_msg in gen:
         if current_msg == msg:
-            return ret
+            match rettype:
+                case 'data':
+                    return ret
+                case 'generator':
+                    return gen
+                case _:
+                    raise NotImplementedError(f'No {rettype}')
