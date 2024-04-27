@@ -325,10 +325,10 @@ class TableStructure:
             df_res = df_res[columns]
         return df_res.copy()
         
-    def get_types(self):
+    def get_types(self)->pd.DataFrame:
         return bp.select_yielder(self._read_process(),'get types')
     
-    def get_types_expanded(self):
+    def get_types_expanded(self)->pd.DataFrame:
         return bp.select_yielder(self._read_process(),'get types with foreign')
         
     
