@@ -43,6 +43,8 @@ def empty_records(df:pd.DataFrame)->pd.DataFrame:
     '''
     
     df_ret = df.copy()
-    df_ret = df_ret.iloc[0:1]
-    df_ret.iloc[-1] = None
+    if len(df_ret) > 0:
+        df_ret = df_ret.loc[0:0]
+    
+    df_ret.index.append(pd.Index([0]))
     return df_ret
