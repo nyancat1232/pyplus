@@ -43,12 +43,16 @@ class BSPlus:
     session : aiohttp.ClientSession
     num_of_repeat : int
     time_wait : float
+    pre_callback : Callable
+    post_callback : Callable
 
-    def __init__(self,num_of_repeat=5,time_wait:float=1.,aiosession=None):
+    def __init__(self,num_of_repeat=5,time_wait:float=1.,aiosession=None,pre_callback:Callable|None=None,post_callback:Callable|None=None):
         self.session = aiosession
         self.bss = []
         self.num_of_repeat=num_of_repeat
         self.time_wait=time_wait
+        self.pre_callback=pre_callback
+        self.post_callback=post_callback
             
     def append_url(self,se:SoupElement)->list[SoupElement]:
         self.bss.append(se)
