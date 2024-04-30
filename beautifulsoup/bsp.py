@@ -20,16 +20,25 @@ class SoupElement:
     url:str
     bs_result:BeautifulSoup = field(init=False)
 
-    def open_bs(self,max_trial:int=3,time_wait=1.0):
+    def open_bs(self,max_trial:int=3,time_wait=1.0,
+                pre_callback:Callable[[str],None]|None=None,
+                post_callback:Callable[[str],None]|None=None,
+                retry_callback:Callable[[str],None]|None=None):
         for current in range(max_trial):
+            if pre_callback is not None:
+                pre_callback(self.name)
             try:
                 resp = get(url=self.url,headers=SoupElement.my_headers)
                 self.bs_result=BeautifulSoup(markup=resp.content,features='html5lib')
+                if post_callback is not None:
+                    post_callback(self.name)
                 return self.bs_result
             except ConnectionError as ce:
-                print(f"failed at {current}")
+                if retry_callback is not None:
+                    retry_callback(self.name)
                 sleep(time_wait)
-        print("No connetion")
+        if retry_callback is not None:
+            retry_callback('No connection')
     
     def find_all(self,name,attrs:dict|None=None)->ResultSet[Tag]:
         rets = self.bs_result.find_all(name=name,attrs=attrs)
@@ -43,10 +52,14 @@ class BSPlus:
     num_of_repeat : int
     time_wait : float
     session : aiohttp.ClientSession
-    pre_callback : Callable
-    post_callback : Callable
+    pre_callback : Callable[[str],None]|None
+    post_callback : Callable[[str],None]|None
+    retry_callback : Callable[[str],None]|None
 
-    def __init__(self,num_of_repeat=5,time_wait:float=1.,aiosession=None,pre_callback:Callable|None=None,post_callback:Callable|None=None):
+    def __init__(self,num_of_repeat=5,time_wait:float=1.,aiosession=None,
+                 pre_callback:Callable[[str],None]|None=None,
+                 post_callback:Callable[[str],None]|None=None,
+                 retry_callback:Callable[[str],None]|None=None):
         self.bss = []
 
         self.num_of_repeat=num_of_repeat
@@ -54,6 +67,7 @@ class BSPlus:
         self.session = aiosession
         self.pre_callback=pre_callback
         self.post_callback=post_callback
+        self.retry_callback=retry_callback
             
     def append_url(self,se:SoupElement)->list[SoupElement]:
         self.bss.append(se)
@@ -79,21 +93,14 @@ class BSPlus:
         self.append_url(se)
         return self
     
-    def __call__(self,
-                 pre_callback_func:Callable|None=None,
-                 post_callback_func:Callable|None=None):
-        return self.do_process(pre_callback_func=pre_callback_func,
-                               post_callback_func=post_callback_func)
+    def __call__(self):
+        return self.do_process()
     
-    def do_process(self,
-                 pre_callback_func:Callable|None=None,
-                 post_callback_func:Callable|None=None):
+    def do_process(self):
         for bs in self.bss:
-            if pre_callback_func is not None:
-                pre_callback_func(bs)
-            bs.open_bs(max_trial=self.num_of_repeat,time_wait=self.time_wait) 
-            if post_callback_func is not None:
-                post_callback_func(bs)
+            bs.open_bs(max_trial=self.num_of_repeat,time_wait=self.time_wait,
+                       pre_callback=self.pre_callback,post_callback=self.post_callback,
+                       retry_callback=self.retry_callback) 
         return self
     
     def append(self,se:SoupElement):
