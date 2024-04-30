@@ -19,7 +19,6 @@ class SoupElement:
     name:str
     url:str
     bs_result:BeautifulSoup = field(init=False)
-    last_table:pd.DataFrame = field(init=False)
 
     def open_bs(self,max_trial:int=3,time_wait=1.0):
         for current in range(max_trial):
@@ -31,25 +30,6 @@ class SoupElement:
                 print(f"failed at {current}")
                 sleep(time_wait)
         print("No connetion")
-    
-    def get_all_tables(self)->pd.DataFrame:
-        tables:ResultSet[Tag] = self.bs_result.find_all(name='table')
-
-        result_tables=[]
-        for index,table in enumerate(tables):
-            
-            current_table = []
-            for index,row in enumerate(table.find_all('tr')):
-                row : Tag
-                current_row = []
-                for data in row.find_all('td'):
-                    data : Tag
-                    current_row.append(data.text)
-                current_table.append(current_row)
-            result_tables.append(pd.DataFrame(current_table))
-
-        self.last_table = result_tables
-        return self.last_table
     
     def find_all(self,name,attrs:dict|None=None)->ResultSet[Tag]:
         rets = self.bs_result.find_all(name=name,attrs=attrs)
