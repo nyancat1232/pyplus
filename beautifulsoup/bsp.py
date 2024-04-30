@@ -106,8 +106,7 @@ class BSPlus:
         for bs in self.bss:
             if pre_callback_func is not None:
                 pre_callback_func(bs)
-            sleep(self.time_wait)
-            bs.open_bs(max_trial=self.num_of_repeat) 
+            bs.open_bs(max_trial=self.num_of_repeat,time_wait=self.time_wait) 
             if post_callback_func is not None:
                 post_callback_func(bs)
         return self
