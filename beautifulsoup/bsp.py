@@ -82,6 +82,11 @@ class BSPlus:
         se : SoupElement
             SoupElement for an url.
         
+        Examples
+        --------
+        >>> bsp = BSPlus(num_of_repeat=5,time_wait=7.5)
+        >>> bsp += SoupElement(name='google',url=f'https://www.google.com')
+
         See Also
         --------
         append_url(self,se)
