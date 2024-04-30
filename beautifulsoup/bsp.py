@@ -33,9 +33,9 @@ class SoupElement:
                 if post_callback is not None:
                     post_callback(self.name)
                 return self.bs_result
-            except ConnectionError as ce:
+            except Exception as e:
                 if retry_callback is not None:
-                    retry_callback(self.name)
+                    retry_callback(f'{self.name} {current}')
                 sleep(time_wait)
         if retry_callback is not None:
             retry_callback('No connection')
