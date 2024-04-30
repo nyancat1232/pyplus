@@ -21,7 +21,7 @@ class SoupElement:
     bs_result:BeautifulSoup = field(init=False)
     last_table:pd.DataFrame = field(init=False)
 
-    def open_bs(self,max_trial:int=3):
+    def open_bs(self,max_trial:int=3,time_wait=1.0):
         for current in range(max_trial):
             try:
                 resp = get(url=self.url,headers=SoupElement.my_headers)
@@ -29,7 +29,7 @@ class SoupElement:
                 return self.bs_result
             except ConnectionError as ce:
                 print(f"failed at {current}")
-                sleep(1.0)
+                sleep(time_wait)
         print("No connetion")
     
     def get_all_tables(self)->pd.DataFrame:
