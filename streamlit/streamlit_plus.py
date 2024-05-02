@@ -68,13 +68,13 @@ class TabsPlus:
     >>> with tabs[0]:
     >>>     ...
     '''
-    def __init__(self,connection:Literal['tab','column']='tab',*tabs:str):
+    def __init__(self,connection:Literal['tab','column','popover']='tab',*tabs:str):
         '''
         (description)
         
         Parameters
         ----------
-        connection : 'tab' or 'column'
+        connection : 'tab' or 'column' or 'popover
             How to display.
         tabs : list[str]
             What to display.
@@ -91,6 +91,12 @@ class TabsPlus:
                 self._streamlit_display = st.tabs(tabs)
             case 'column':
                 self._streamlit_display = st.columns(len(tabs))
+            case 'popover':
+                ll=[]
+                cols = st.columns(len(tabs))
+                for col,tab in zip(cols,tabs):
+                    ll.append(col.popover(tab))
+                self._streamlit_display = ll
         self._tab_ind = tab_information
 
     def __getitem__(self,item):
