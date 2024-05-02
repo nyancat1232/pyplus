@@ -25,8 +25,11 @@ def _conversion_Sql_value(val:None|int|np.integer|float|np.floating|str|date|pd.
         case pd.Timestamp():
             return f"'{val.strftime('%Y-%m-%d %H:%M:%S%z')}'"
         case date():
-            escape_str = val.strftime("%Y-%m-%d")
-            return f"'{escape_str}'"
+            if val is not pd.NaT:
+                escape_str = val.strftime("%Y-%m-%d")
+                return f"'{escape_str}'"
+            else:
+                return 'NULL'
         case list():
             val_after = [f'"{str(v)}"' for v in val]
             return "'{"+f"{','.join(val_after)}"+"}'"
