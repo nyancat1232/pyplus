@@ -68,7 +68,7 @@ class TabsPlus:
     >>> with tabs[0]:
     >>>     ...
     '''
-    def __init__(self,connection:Literal['tab','column']='tab',tabs: list[str]=[]):
+    def __init__(self,connection:Literal['tab','column']='tab',*tabs:str):
         '''
         (description)
         
