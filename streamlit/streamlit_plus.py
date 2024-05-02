@@ -88,19 +88,19 @@ class TabsPlus:
         tab_information={tab_str:ind for ind,tab_str in enumerate(tabs)}
         match connection:
             case 'tab':
-                self._streamlit_display = st.tabs(tabs)
+                self._streamlit_display_index_num = st.tabs(tabs)
             case 'column':
-                self._streamlit_display = st.columns(len(tabs))
+                self._streamlit_display_index_num = st.columns(len(tabs))
             case 'popover':
                 ll=[]
                 cols = st.columns(len(tabs))
                 for col,tab in zip(cols,tabs):
                     ll.append(col.popover(tab))
-                self._streamlit_display = ll
-        self._tab_ind = tab_information
+                self._streamlit_display_index_num = ll
+        self._strs_to_num = tab_information
 
     def __getitem__(self,item):
-        return self._streamlit_display[self._tab_ind[item]]
+        return self._streamlit_display_index_num[self._strs_to_num[item]]
 
 
 
