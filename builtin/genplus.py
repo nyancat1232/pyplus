@@ -49,7 +49,7 @@ def select_yielder(gen:Generator[tuple[Any,str],Any|Generator,None],msg:str,
     >>>     def second_method(self):
     >>>         return bp.select_yielder(self._private_method(),'second return') 
     '''
-    if sender is not None:
+    if senders is not None:
         raise NotImplementedError(f'sender not implemented')
     for ret,current_msg in gen:
         if current_msg == msg:
