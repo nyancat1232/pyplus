@@ -1,6 +1,8 @@
 from typing import Generator,Any,Literal
 
-def select_yielder(gen:Generator[tuple[Any,str],Any|Generator,None],msg:str,rettype:Literal['data','generator']='data'):
+def select_yielder(gen:Generator[tuple[Any,str],Any|Generator,None],msg:str,
+                   senders:dict[str,Any]|None=None,
+                   rettype:Literal['data','generator']='data'):
     '''
     catch a return of generator. yield type must be like (value:Any,msg:str).
 
@@ -47,6 +49,8 @@ def select_yielder(gen:Generator[tuple[Any,str],Any|Generator,None],msg:str,rett
     >>>     def second_method(self):
     >>>         return bp.select_yielder(self._private_method(),'second return') 
     '''
+    if sender is not None:
+        raise NotImplementedError(f'sender not implemented')
     for ret,current_msg in gen:
         if current_msg == msg:
             match rettype:
