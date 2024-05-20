@@ -2,7 +2,7 @@ import pandas as pd
 from sqlalchemy.sql import text
 from dataclasses import dataclass
 import sqlalchemy
-from typing import Self
+from typing import Self,Literal
 from datetime import datetime,date
 from zoneinfo import ZoneInfo
 import numpy as np
@@ -38,7 +38,7 @@ def _conversion_Sql_value(val:None|int|np.integer|float|np.floating|str|date|pd.
         case _:
             raise NotImplementedError(type(val))
 
-def _convert_pgsql_type_to_pandas_type(pgtype:str):
+def _convert_pgsql_type_to_pandas_type(pgtype:str,precision:Literal['ns']='ns'):
     #https://pandas.pydata.org/pandas-docs/stable/user_guide/basics.html#basics-dtypes
     match pgtype:
         case 'bigint':
@@ -54,9 +54,9 @@ def _convert_pgsql_type_to_pandas_type(pgtype:str):
         case 'date':
             return 'object'
         case 'timestamp without time zone':
-            return 'datetime64[ns]'
+            return f'datetime64[{precision}]'
         case 'timestamp with time zone':
-            return pd.DatetimeTZDtype('ns',tz=ZoneInfo('UTC'))
+            return pd.DatetimeTZDtype(precision,tz=ZoneInfo('UTC'))
         case 'interval':
             return 'str'
         case 'ARRAY':
