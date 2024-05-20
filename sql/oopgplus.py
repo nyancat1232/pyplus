@@ -57,6 +57,8 @@ def _convert_pgsql_type_to_pandas_type(pgtype:str):
             return 'datetime64[ns]'
         case 'timestamp with time zone':
             return pd.DatetimeTZDtype('ns',tz=ZoneInfo('UTC'))
+        case 'interval':
+            return 'str'
         case 'ARRAY':
             return 'object'
         case _:
