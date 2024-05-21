@@ -58,3 +58,12 @@ def select_yielder(gen:Generator[tuple[Any,str],Any|Generator,None],begin_msg:st
                     return gen
                 case _:
                     raise NotImplementedError(f'No {rettype}')
+
+def pass_sender(gen:Generator[tuple[Any,str],Any,None],**passer:Any)->Generator[tuple[Any,str],Any,None]:
+    msg=None
+    while True:
+        if msg in passer:
+            val,msg=gen.send(passer[msg])
+        else:
+            val,msg=next(gen)
+        yield val,msg
