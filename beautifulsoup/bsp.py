@@ -56,10 +56,11 @@ class BSPlus:
     post_callback : Callable[[str],None]|None
     retry_callback : Callable[[str],None]|None
 
-    def __init__(self,num_of_repeat=5,time_wait:float=1.,aiosession=None,
+    def __init__(self,
                  pre_callback:Callable[[str],None]|None=None,
                  post_callback:Callable[[str],None]|None=None,
-                 retry_callback:Callable[[str],None]|None=None):
+                 retry_callback:Callable[[str],None]|None=None,
+                 num_of_repeat=5,time_wait:float=0.2,aiosession=None):
         self.bss = []
 
         self.num_of_repeat=num_of_repeat
