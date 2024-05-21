@@ -13,7 +13,7 @@ def select_yielder(gen:Generator[tuple[Any,str],Any|Generator,None],begin_msg:st
     begin_msg : str
         return when generator approches to the begin_msg.
     rettype : Literal['data','generator']
-        return data if data or gererator if generator. If sender is needed, choose 'generator'.
+        return data of beginning if data or gererator if generator. 
     
     Returns
     --------
