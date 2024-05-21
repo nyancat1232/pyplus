@@ -1,17 +1,17 @@
 from typing import Generator,Any,Literal
 
-def select_yielder(gen:Generator[tuple[Any,str],Any|Generator,None],msg:str,
+def select_yielder(gen:Generator[tuple[Any,str],Any|Generator,None],begin_msg:str,
                    rettype:Literal['data','generator']='data',
                    senders:dict[str,Any]|None=None):
     '''
-    catch a return of generator. yield type must be like (value:Any,msg:str).
+    catch a return of generator. yield type must be like (value:Any,begin_msg:str).
 
     Parameters
     ----------
     gen : Generator
-        generator that yields (value,msg).
-    msg : str
-        return when generator approches to the msg.
+        generator that yields (value,begin_msg).
+    begin_msg : str
+        return when generator approches to the begin_msg.
     rettype : Literal['data','generator']
         return data if data or gererator if generator. If sender is needed, choose 'generator'.
     
@@ -52,7 +52,7 @@ def select_yielder(gen:Generator[tuple[Any,str],Any|Generator,None],msg:str,
     if senders is not None:
         raise NotImplementedError(f'sender not implemented')
     for ret,current_msg in gen:
-        if current_msg == msg:
+        if current_msg == begin_msg:
             match rettype:
                 case 'data':
                     return ret
