@@ -1,8 +1,7 @@
 from typing import Generator,Any,Literal
 
 def select_yielder(gen:Generator[tuple[Any,str],Any|Generator,None],begin_msg:str,
-                   rettype:Literal['data','generator']='data',
-                   senders:dict[str,Any]|None=None):
+                   rettype:Literal['data','generator']='data'):
     '''
     catch a return of generator. yield type must be like (value:Any,begin_msg:str).
 
