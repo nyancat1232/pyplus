@@ -64,6 +64,43 @@ class TabsPlus:
     def __getitem__(self,item):
         return self._streamlit_display_index_num[self._strs_to_num[item]]
 
+def write_columns(*positional_data,**keyword_data):
+    '''
+    write by columns
+    ## Parameters:
+    positional_data : Any
+        ...
+    keyword_data : Any
+        ....
+    ## See Also:
+    st.write
+    st.columns
+    ## Examples:
+    >>> from pyplus.streamlit.streamlit_plus import write_columns
+    >>> import streamlit as st
+    >>> xx=np.array([['x1','x2'],['x3','x4']])
+    >>> ww=np.array([['w1','w2'],['w3','w4']])
+    >>> write_columns(X1=xx,W1=ww)
+    X1           W1
+    0    1       0       1
+    x1   x2      w1      w2
+    x3   x4      w3      w4
+
+    '''
+    if len(positional_data)+len(keyword_data)<1:
+        st.write('No arguments')
+        return
+    
+    dict_add = {num:val for num,val in enumerate(positional_data)}
+    for key in keyword_data:
+        dict_add[key] = keyword_data[key]
+    tp = TabsPlus('column',*dict_add)
+    for key in dict_add:
+        with tp[key]:
+            st.write(key)
+            st.write(dict_add[key])
+    return dict_add    
+
 def list_text_input_by_vals(*attribute_list,**kwarg_text_input):
     return {attr : st.text_input(label=f'{attr}',**kwarg_text_input) for attr in attribute_list}
 
