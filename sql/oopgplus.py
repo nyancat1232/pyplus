@@ -337,8 +337,15 @@ class TableStructure:
     
     def get_types_expanded(self)->pd.DataFrame:
         return bp.select_yielder(self._read_process(),'get types with foreign')
-        
     
+    def get_local_val_to_id(self,column:str):
+        convert_table:pd.DataFrame = bp.select_yielder(self._read_process(),'read without foreign')
+        ser_filtered = convert_table[column].dropna()
+        ser_filtered.index = ser_filtered.index.astype('int')
+        ret = ser_filtered.to_dict()
+        ret = {ret[key]:key for key in ret}
+        return ret
+        
     def get_local_foreign_id(self,row,column)->int:
         '''
         get a local foreign id of expanded dataframe.
