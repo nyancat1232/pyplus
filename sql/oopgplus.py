@@ -93,7 +93,7 @@ class TableStructure:
 
     _identity_column : str
 
-    def get_foreign_table(self):
+    def get_foreign_list_table(self):
         sql = f'''
         SELECT KCU.column_name AS current_column_name,
             CCU.table_schema AS upper_schema, 
@@ -119,7 +119,7 @@ class TableStructure:
             return False
         current_column = column.split(".")[0]
 
-        if current_column in self.get_foreign_table().index:
+        if current_column in self.get_foreign_list_table().index:
             return True
         else:
             return False
@@ -210,7 +210,7 @@ class TableStructure:
         df_rwof = df_content.sort_index(ascending=ascending)
         yield df_rwof.copy(), 'read without foreign'
 
-        df_foreign = self.get_foreign_table()
+        df_foreign = self.get_foreign_list_table()
         foreign_tables = df_foreign.to_dict(orient='index')
         for foreign_col in foreign_tables:
             if not self.check_selfref(foreign_tables[foreign_col]['upper_schema'],foreign_tables[foreign_col]['upper_table']):
@@ -326,7 +326,7 @@ class TableStructure:
         }
         '''
 
-        df_foreign = self.get_foreign_table()
+        df_foreign = self.get_foreign_list_table()
 
         if foreign_column not in df_foreign.index:
             raise TypeError("You must select foreign_column as foreign column")
@@ -364,7 +364,7 @@ class TableStructure:
         for column in kwarg:
             if self.check_if_not_local_column(column):
                 local_column=column.split(".")[0]
-                address=self.get_foreign_table().loc[local_column]
+                address=self.get_foreign_list_table().loc[local_column]
                 local_foreign_id = self.get_local_foreign_id(id_row,column)
 
                 foreign_column=".".join(column.split(".")[1:])
