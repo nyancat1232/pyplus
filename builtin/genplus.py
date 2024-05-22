@@ -1,4 +1,5 @@
-from typing import Generator,Any,Literal
+from typing import Generator,Any,Literal,Iterable,Callable
+import itertools as its
 
 def select_yielder(gen:Generator[tuple[Any,str],Any,None],begin_msg:str,
                    rettype:Literal['data','generator']='data'):
@@ -70,3 +71,21 @@ def pass_sender(gen:Generator[tuple[Any,str],Any,None],**passer:Any)->Generator[
             yield val,msg
     except StopIteration as si:
         pass
+
+def pass_senders_parallel(func:Callable,**passer:Iterable[Any])->Generator[tuple[Any,str],Any,None]:
+    passer_iterable_check=(isinstance(passer[key],Iterable) for key in passer)
+    if not all(passer_iterable_check):
+        raise TypeError('All must be iterable')
+    
+    def apply_prod(*pr):
+        return [r for r in its.product(*pr)]
+    passer_vals=(apply_prod([key],passer[key]) for key in passer)
+    all_case = (case for case in its.product(*passer_vals))
+    ret=[]
+    for case in all_case:
+        di_res=dict()
+        for one_passer in case:
+            di_res[one_passer[0]]=one_passer[1]
+        ret+=[di_res]
+    all_case_gen = (pass_sender(func(),**case) for case in ret)
+    return all_case_gen
