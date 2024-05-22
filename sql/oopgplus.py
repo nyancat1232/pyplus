@@ -186,15 +186,8 @@ class TableStructure:
         ts_foreign = TableStructure(schema_name=inf['upper_schema'],
                                     table_name=inf['upper_table'],
                                     engine=self.engine)
-        df_from_foreign = ts_foreign.read()
 
-        if column_refrence_foreign not in df_from_foreign.columns:
-            raise TypeError("You must select column_refrence_foreign that is in the foreign table")
-
-        convert_table = df_from_foreign[column_refrence_foreign].to_dict()
-        convert_table = {convert_table[key]:key for key in convert_table}
-        convert_table
-        return convert_table
+        return ts_foreign.get_local_val_to_id(column_refrence_foreign)
 
     def __init__(self,schema_name:str,table_name:str,
                  engine:sqlalchemy.Engine):
