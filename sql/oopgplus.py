@@ -302,47 +302,6 @@ class TableStructure:
         ret = ser_filtered.to_dict()
         ret = {ret[key]:key for key in ret}
         return ret
-    def get_foreign_direction(self,foreign_column:str,column_refrence_foreign:str)->dict:
-        '''
-        From a reference column in a table what foreign column indicates
-        to a primary key in a table what foreign column indicates.
-        
-        Parameters
-        ----------
-        foreign_column : str
-            .
-
-        Examples
-        --------
-        Table person
-            id  name   gender
-        1   0   Rick   M
-        2   1   Selene F
-
-        Table address
-            id  address id_housemate
-        1   0   Apple   0
-        2   1   Banana  0
-
-
-        >>> ts.get_foreign_direction('id_housemate','name')
-        {
-        'Rick':0
-        'Selene:1
-        }
-        '''
-        warn('get_foreign_direction will be deprecated. Use get_foreign_list_table, foreign TableStructure, and get_local_val_to_id of the foreign table.')
-        df_foreign = self.get_foreign_list_table()
-
-        if foreign_column not in df_foreign.index:
-            raise TypeError("You must select foreign_column as foreign column")
-        
-        inf = df_foreign.loc[foreign_column].to_dict()
-        ts_foreign = TableStructure(schema_name=inf['upper_schema'],
-                                    table_name=inf['upper_table'],
-                                    engine=self.engine)
-
-        return ts_foreign.get_local_val_to_id(column_refrence_foreign)
         
     def get_local_foreign_id(self,row,column)->int:
         '''
