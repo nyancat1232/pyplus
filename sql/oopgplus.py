@@ -225,11 +225,10 @@ class TableStructure:
         df_rwof = df_content.sort_index(ascending=ascending)
         yield df_rwof.copy(), 'read without foreign'
 
-        df_foreign = self.get_foreign_list_table()
-        foreign_tables = df_foreign.to_dict(orient='index')
-        for foreign_col in foreign_tables:
-            if not self.check_selfref(foreign_tables[foreign_col]['upper_schema'],foreign_tables[foreign_col]['upper_table']):
-                ts = TableStructure(foreign_tables[foreign_col]['upper_schema'],foreign_tables[foreign_col]['upper_table'],self.engine)
+        foreign_tables_ts = self.get_foreign_tss()
+        for foreign_col in foreign_tables_ts:
+            if not self.check_selfref_table(foreign_tables_ts[foreign_col]):
+                ts = foreign_tables_ts[foreign_col]
                 df_ftable_types=ts.get_types_expanded()
                 row_changer={row:f'{foreign_col}.{row}' for row in df_ftable_types.index.to_list()}
                 df_ftable_types=df_ftable_types.rename(index=row_changer)
