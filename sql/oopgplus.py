@@ -326,7 +326,7 @@ class TableStructure:
         'Selene:1
         }
         '''
-
+        warn('get_foreign_direction will be deprecated. Use get_foreign_list_table, foreign TableStructure, and get_local_val_to_id of the foreign table.')
         df_foreign = self.get_foreign_list_table()
 
         if foreign_column not in df_foreign.index:
