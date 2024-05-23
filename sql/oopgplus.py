@@ -121,7 +121,7 @@ class TableStructure:
             case _:
                 return False
     
-    def check_selfref_ts(self,ts:Self)->bool:
+    def check_selfref_tanle(self,ts:Self)->bool:
         match (ts.schema_name,ts.table_name):
             case (self.schema_name,self.table_name):
                 return True
