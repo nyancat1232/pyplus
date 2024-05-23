@@ -152,7 +152,7 @@ class TableStructure:
         '''
         self.column_identity = self.execute_sql_read(sql_find_identity)['identity_column'].to_list()
     def refresh_identity(self):
-        warn('refresh_identity of TableStructure will be deprecated',DeprecationWarning,stacklevel=2)
+        warn('refresh_identity of TableStructure will be deprecated. Use column_identity instead.',DeprecationWarning,stacklevel=2)
         return self.column_identity
 
     def execute_sql_read(self,sql,index_column:str|None=None,drop_duplicates:bool=False)->pd.DataFrame:
