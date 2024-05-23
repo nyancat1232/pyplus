@@ -107,7 +107,7 @@ class TableStructure:
         AND KCU.table_name='{self.table_name}';
         '''
         return self.execute_sql_read(sql,index_column='current_column_name',drop_duplicates=True)
-    def get_foreign_tss(self)->dict[str,Self]:
+    def get_foreign_tables(self)->dict[str,Self]:
         dd=self.get_foreign_list_table().reset_index().to_dict('records')
         ret = {val['current_column_name']:
                TableStructure(val['upper_schema'],val['upper_table'],self.engine) 
@@ -225,7 +225,7 @@ class TableStructure:
         df_rwof = df_content.sort_index(ascending=ascending)
         yield df_rwof.copy(), 'read without foreign'
 
-        foreign_tables_ts = self.get_foreign_tss()
+        foreign_tables_ts = self.get_foreign_tables()
         for foreign_col in foreign_tables_ts:
             if not self.check_selfref_table(foreign_tables_ts[foreign_col]):
                 ts = foreign_tables_ts[foreign_col]
