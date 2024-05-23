@@ -126,7 +126,7 @@ class TableStructure:
             return False
         current_column = column.split(".")[0]
 
-        if current_column in self.get_foreign_list_table().index:
+        if current_column in self.get_foreign_tables():
             return True
         else:
             return False
