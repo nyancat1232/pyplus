@@ -120,7 +120,14 @@ class TableStructure:
                 return True
             case _:
                 return False
-
+    
+    def check_selfref_ts(self,ts:Self)->bool:
+        match (ts.schema_name,ts.table_name):
+            case (self.schema_name,self.table_name):
+                return True
+            case _:
+                return False
+        
     def check_if_not_local_column(self,column:str)->bool:
         if '.' not in column:
             return False
