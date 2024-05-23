@@ -433,7 +433,7 @@ class TableStructure:
         
         return self.execute_sql_write(sql)
     def __repr__(self):
-        return f"{self.schema_name}.{self.table_name}"
+        return f"Table_structure. \nSchema is {self.schema_name}\nTable is {self.table_name}"
 
 
     
