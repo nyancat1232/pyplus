@@ -152,7 +152,18 @@ class TableStructure:
         self.schema_name = schema_name
         self.table_name = table_name
         self.engine = engine
-        self._identity_column = self.refresh_identity()
+
+        sql_find_identity = f'''SELECT attname as identity_column
+        FROM pg_attribute 
+        JOIN pg_class 
+            ON pg_attribute.attrelid = pg_class.oid
+        JOIN pg_namespace
+            ON pg_class.relnamespace = pg_namespace.oid
+        WHERE nspname = '{self.schema_name}'
+        AND relname = '{self.table_name}'
+        AND attidentity = 'a';
+        '''
+        self._identity_column = self.execute_sql_read(sql_find_identity)['identity_column'].to_list()
 
     def execute_sql_read(self,sql,index_column:str|None=None,drop_duplicates:bool=False)->pd.DataFrame:
         with self.engine.connect() as conn:
