@@ -370,15 +370,14 @@ class TableStructure:
         for column in kwarg:
             if self.check_if_not_local_column(column):
                 local_column=column.split(".")[0]
-                address=self.get_foreign_list_table().loc[local_column]
+                foreign_ts=self.get_foreign_tables()[local_column]
+                
                 local_foreign_id = self.get_local_foreign_id(id_row,column)
 
                 foreign_column=".".join(column.split(".")[1:])
                 foreign_val = kwarg[column]
                 foreign_upload_dict = {foreign_column:foreign_val}
 
-                foreign_ts = TableStructure(address['upper_schema'],address['upper_table'],self.engine)
-                
                 if local_foreign_id is pd.NA:
                     foreign_index = set(foreign_ts.read().index.to_list())
                     df_foreign_after =foreign_ts.upload_append(**foreign_upload_dict)
