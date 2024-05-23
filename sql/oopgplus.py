@@ -113,14 +113,6 @@ class TableStructure:
                TableStructure(val['upper_schema'],val['upper_table'],self.engine) 
                for val in dd}
         return ret
-
-    def check_selfref(self,upper_schema,upper_table):
-        warn('check_selfref will be deprecated. Use check_selfref_table instead')
-        match (upper_schema,upper_table):
-            case (self.schema_name,self.table_name):
-                return True
-            case _:
-                return False
     
     def check_selfref_table(self,ts:Self)->bool:
         match (ts.schema_name,ts.table_name):
