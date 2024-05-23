@@ -91,7 +91,7 @@ class TableStructure:
     table_name : str
     engine : sqlalchemy.Engine
 
-    _identity_column : str
+    column_identity : str
 
     def get_foreign_list_table(self):
         sql = f'''
@@ -135,8 +135,8 @@ class TableStructure:
         AND relname = '{self.table_name}'
         AND attidentity = 'a';
         '''
-        self._identity_column = self.execute_sql_read(sql)['identity_column'].to_list()
-        return self._identity_column
+        self.column_identity = self.execute_sql_read(sql)['identity_column'].to_list()
+        return self.column_identity
 
     def get_default_value(self):
         sql = f'''SELECT column_name, column_default
@@ -163,7 +163,7 @@ class TableStructure:
         AND relname = '{self.table_name}'
         AND attidentity = 'a';
         '''
-        self._identity_column = self.execute_sql_read(sql_find_identity)['identity_column'].to_list()
+        self.column_identity = self.execute_sql_read(sql_find_identity)['identity_column'].to_list()
 
     def execute_sql_read(self,sql,index_column:str|None=None,drop_duplicates:bool=False)->pd.DataFrame:
         with self.engine.connect() as conn:
@@ -176,7 +176,7 @@ class TableStructure:
                 return ret.set_index(index_column)
             else:
                 try:
-                    return ret.set_index(self._identity_column)
+                    return ret.set_index(self.column_identity)
                 except:
                     return ret
                 
@@ -413,7 +413,7 @@ class TableStructure:
         sql = text(f"""
         UPDATE {self.schema_name}.{self.table_name}
         SET {original}
-        WHERE {self._identity_column[0]} = {id_row};
+        WHERE {self.column_identity[0]} = {id_row};
         """)
         
         return self.execute_sql_write(sql)
