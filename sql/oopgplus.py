@@ -115,6 +115,7 @@ class TableStructure:
         return ret
 
     def check_selfref(self,upper_schema,upper_table):
+        warn('check_selfref will be deprecated. Use check_selfref_tanle instead')
         match (upper_schema,upper_table):
             case (self.schema_name,self.table_name):
                 return True
