@@ -124,9 +124,6 @@ class TableStructure:
         else:
             return False
 
-    def refresh_identity(self):
-        return self.column_identity
-
     def get_default_value(self):
         sql = f'''SELECT column_name, column_default
         FROM information_schema.columns
@@ -153,6 +150,8 @@ class TableStructure:
         AND attidentity = 'a';
         '''
         self.column_identity = self.execute_sql_read(sql_find_identity)['identity_column'].to_list()
+    def refresh_identity(self):
+        return self.column_identity
 
     def execute_sql_read(self,sql,index_column:str|None=None,drop_duplicates:bool=False)->pd.DataFrame:
         with self.engine.connect() as conn:
