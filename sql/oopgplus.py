@@ -125,17 +125,6 @@ class TableStructure:
             return False
 
     def refresh_identity(self):
-        sql = f'''SELECT attname as identity_column
-        FROM pg_attribute 
-        JOIN pg_class 
-            ON pg_attribute.attrelid = pg_class.oid
-        JOIN pg_namespace
-            ON pg_class.relnamespace = pg_namespace.oid
-        WHERE nspname = '{self.schema_name}'
-        AND relname = '{self.table_name}'
-        AND attidentity = 'a';
-        '''
-        self.column_identity = self.execute_sql_read(sql)['identity_column'].to_list()
         return self.column_identity
 
     def get_default_value(self):
