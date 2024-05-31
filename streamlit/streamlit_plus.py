@@ -58,6 +58,8 @@ class TabsPlus:
                 cols = st.columns(len(tabs))
                 for col,tab in zip(cols,tabs):
                     ret_list.append(col.popover(tab))
+            case _:
+                raise NotImplementedError(f'no connection {connection}')
         self._streamlit_display_index_num = ret_list
         self._strs_to_num = tab_information
 
