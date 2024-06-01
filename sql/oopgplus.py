@@ -94,7 +94,7 @@ class TableStructure:
 
     column_identity : str
 
-    def get_foreign_tables_list(self):
+    def _get_foreign_tables_list(self):
         sql = f'''
         SELECT KCU.column_name AS current_column_name,
             CCU.table_schema AS upper_schema, 
@@ -107,8 +107,9 @@ class TableStructure:
         AND KCU.table_name='{self.table_name}';
         '''
         return self.execute_sql_read(sql,index_column='current_column_name',drop_duplicates=True)
+    
     def get_foreign_tables(self)->dict[str,Self]:
-        dd=self.get_foreign_tables_list().reset_index().to_dict('records')
+        dd=self._get_foreign_tables_list().reset_index().to_dict('records')
         ret = {val['current_column_name']:
                TableStructure(val['upper_schema'],val['upper_table'],self.engine) 
                for val in dd}
