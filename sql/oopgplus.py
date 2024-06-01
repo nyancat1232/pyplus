@@ -304,7 +304,7 @@ class TableStructure:
         ret = {ret[key]:key for key in ret}
         return ret
         
-    def get_local_foreign_id(self,row,column)->int:
+    def _get_local_foreign_id(self,row,column)->int:
         '''
         get a local foreign id of expanded dataframe.
         
@@ -334,7 +334,7 @@ class TableStructure:
                 foreign_val = kwarg[column]
                 foreign_upload_dict = {foreign_column:foreign_val}
 
-                local_foreign_id = self.get_local_foreign_id(id_row,column)
+                local_foreign_id = self._get_local_foreign_id(id_row,column)
                 foreign_ts=self.get_foreign_tables()[local_column]
 
                 if local_foreign_id is pd.NA:
