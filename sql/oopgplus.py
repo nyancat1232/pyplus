@@ -153,11 +153,18 @@ class TableStructure:
             ON pg_attribute.attrelid = pg_class.oid
         JOIN pg_namespace
             ON pg_class.relnamespace = pg_namespace.oid
-        WHERE nspname = '{self.schema_name}'
-        AND relname = '{self.table_name}'
+        WHERE nspname = :schema
+        AND relname = :table
         AND attidentity = 'a';
         ''')
-        self.column_identity = self.execute_sql_read(sql_find_identity)['identity_column'].to_list()
+        with self.engine.connect() as conn:
+            result = conn.execute(sql_find_identity,
+                                  {
+                                      "schema":self.schema_name,
+                                      "table":self.table_name
+                                  })
+            self.column_identity = [row.identity_column for row in result]
+        #self.column_identity = self.execute_sql_read(sql_find_identity)['identity_column'].to_list()
     def refresh_identity(self):
         warn('refresh_identity of TableStructure will be deprecated. Use column_identity instead.',DeprecationWarning,stacklevel=2)
         return self.column_identity
