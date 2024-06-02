@@ -178,6 +178,7 @@ class TableStructure:
         return self.column_identity
 
     def _execute_sql_read_legacy(self,sql,index_column:str|None=None,drop_duplicates:bool=False)->pd.DataFrame:
+        warn('_execute_sql_read_legacy method will be deprecated ')
         with self.engine.connect() as conn:
             ret = pd.read_sql_query(sql=sql,con=conn)
 
