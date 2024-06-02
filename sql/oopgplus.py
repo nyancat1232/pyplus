@@ -218,8 +218,7 @@ class TableStructure:
             
         yield df_types.copy(), 'get types'
 
-        sql_content = f'''SELECT * FROM {self.schema_name}.{self.table_name}
-        '''
+        sql_content = text(f"SELECT * FROM {self.schema_name}.{self.table_name}")
         df_content = self._execute_sql_read_legacy(sql_content)
         column_identity = df_content.index.name
 
