@@ -26,6 +26,7 @@ FROM information_schema.columns
 WHERE table_schema = :schema AND 
 table_name = :table;
 ''')
+sql_get_types_col=['column_name','data_type','udt_name','domain_name']
 
 def _apply_escaping(sentence:str):
     return sentence.replace("'","''")
@@ -209,7 +210,6 @@ class TableStructure:
         return self.execute_sql_write(query)
 
     def _read_process(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
-        sql_get_types_col=['column_name','data_type','udt_name','domain_name']
         with self.engine.connect() as conn:
             result = conn.execute(stmt_get_types,self._get_default_parameter_stmt())
             
