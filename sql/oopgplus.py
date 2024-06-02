@@ -207,10 +207,19 @@ class TableStructure:
         sql_get_types = text(f'''
         SELECT column_name, data_type, udt_name, domain_name
         FROM information_schema.columns
-        WHERE table_schema = '{self.schema_name}' AND 
-        table_name = '{self.table_name}';
+        WHERE table_schema = :schema AND 
+        table_name = :table;
         ''')
-        df_types=self.execute_sql_read(sql_get_types,index_column='column_name')
+        sql_get_types_col=['column_name','data_type','udt_name','domain_name']
+        with self.engine.connect() as conn:
+            result = conn.execute(sql_get_types,{
+                                      "schema":self.schema_name,
+                                      "table":self.table_name
+                                  })
+            
+            df_types=pd.DataFrame([[getattr(row,col) for col in sql_get_types_col] for row in result],columns=sql_get_types_col)
+            df_types=df_types.set_index('column_name')
+            
         yield df_types.copy(), 'get types'
 
         sql_content = f'''SELECT * FROM {self.schema_name}.{self.table_name}
