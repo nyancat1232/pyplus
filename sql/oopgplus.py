@@ -9,7 +9,7 @@ import pyplus.builtin as bp
 import networkx as nx
 from warnings import warn
 
-sql_find_identity = text(f'''SELECT attname as identity_column
+stmt_find_identity = text(f'''SELECT attname as identity_column
 FROM pg_attribute 
 JOIN pg_class 
     ON pg_attribute.attrelid = pg_class.oid
@@ -20,7 +20,7 @@ AND relname = :table
 AND attidentity = 'a';
 ''')
 
-sql_get_types = text(f'''
+stmt_get_types = text(f'''
 SELECT column_name, data_type, udt_name, domain_name
 FROM information_schema.columns
 WHERE table_schema = :schema AND 
@@ -169,7 +169,7 @@ class TableStructure:
         self.engine = engine
 
         with self.engine.connect() as conn:
-            result = conn.execute(sql_find_identity,self._get_default_parameter_stmt())
+            result = conn.execute(stmt_find_identity,self._get_default_parameter_stmt())
             self.column_identity = [row.identity_column for row in result]
         #self.column_identity = self.execute_sql_read(sql_find_identity)['identity_column'].to_list()
     def refresh_identity(self):
@@ -211,7 +211,7 @@ class TableStructure:
     def _read_process(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
         sql_get_types_col=['column_name','data_type','udt_name','domain_name']
         with self.engine.connect() as conn:
-            result = conn.execute(sql_get_types,self._get_default_parameter_stmt())
+            result = conn.execute(stmt_get_types,self._get_default_parameter_stmt())
             
             df_types=pd.DataFrame([[getattr(row,col) for col in sql_get_types_col] for row in result],columns=sql_get_types_col)
             df_types=df_types.set_index('column_name')
