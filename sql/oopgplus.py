@@ -118,7 +118,7 @@ class TableStructure:
         AND KCU.table_schema='{self.schema_name}'
         AND KCU.table_name='{self.table_name}';
         '''
-        return self.execute_sql_read(sql,index_column='current_column_name',drop_duplicates=True)
+        return self.execute_sql_read_legacy(sql,index_column='current_column_name',drop_duplicates=True)
     
     def get_foreign_tables(self)->dict[str,Self]:
         dd=self._get_foreign_tables_list().reset_index().to_dict('records')
@@ -151,7 +151,7 @@ class TableStructure:
         AND table_name = '{self.table_name}'
         AND column_default IS NOT NULL ;
         '''
-        return self.execute_sql_read(sql).set_index('column_name')
+        return self.execute_sql_read_legacy(sql).set_index('column_name')
     
     def __init__(self,schema_name:str,table_name:str,
                  engine:sqlalchemy.Engine):
@@ -171,7 +171,7 @@ class TableStructure:
         warn('refresh_identity of TableStructure will be deprecated. Use column_identity instead.',DeprecationWarning,stacklevel=2)
         return self.column_identity
 
-    def execute_sql_read(self,sql,index_column:str|None=None,drop_duplicates:bool=False)->pd.DataFrame:
+    def execute_sql_read_legacy(self,sql,index_column:str|None=None,drop_duplicates:bool=False)->pd.DataFrame:
         with self.engine.connect() as conn:
             ret = pd.read_sql_query(sql=sql,con=conn)
 
@@ -224,7 +224,7 @@ class TableStructure:
 
         sql_content = f'''SELECT * FROM {self.schema_name}.{self.table_name}
         '''
-        df_content = self.execute_sql_read(sql_content)
+        df_content = self.execute_sql_read_legacy(sql_content)
         column_identity = df_content.index.name
 
         conv_type = {column_name:_convert_pgsql_type_to_pandas_type(df_types['data_type'][column_name]) for column_name 
