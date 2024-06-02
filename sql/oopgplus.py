@@ -9,6 +9,18 @@ import pyplus.builtin as bp
 import networkx as nx
 from warnings import warn
 
+sql_find_identity = text(f'''SELECT attname as identity_column
+FROM pg_attribute 
+JOIN pg_class 
+    ON pg_attribute.attrelid = pg_class.oid
+JOIN pg_namespace
+    ON pg_class.relnamespace = pg_namespace.oid
+WHERE nspname = :schema
+AND relname = :table
+AND attidentity = 'a';
+''')
+
+
 def _apply_escaping(sentence:str):
     return sentence.replace("'","''")
 
@@ -147,16 +159,6 @@ class TableStructure:
         self.table_name = table_name
         self.engine = engine
 
-        sql_find_identity = text(f'''SELECT attname as identity_column
-        FROM pg_attribute 
-        JOIN pg_class 
-            ON pg_attribute.attrelid = pg_class.oid
-        JOIN pg_namespace
-            ON pg_class.relnamespace = pg_namespace.oid
-        WHERE nspname = :schema
-        AND relname = :table
-        AND attidentity = 'a';
-        ''')
         with self.engine.connect() as conn:
             result = conn.execute(sql_find_identity,
                                   {
