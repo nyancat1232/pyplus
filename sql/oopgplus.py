@@ -153,6 +153,9 @@ class TableStructure:
         '''
         return self._execute_sql_read_legacy(sql).set_index('column_name')
     
+    def _get_default_parameter_stmt(self):
+        return {"schema":self.schema_name,"table":self.table_name}
+    
     def __init__(self,schema_name:str,table_name:str,
                  engine:sqlalchemy.Engine):
         self.schema_name = schema_name
@@ -160,11 +163,7 @@ class TableStructure:
         self.engine = engine
 
         with self.engine.connect() as conn:
-            result = conn.execute(sql_find_identity,
-                                  {
-                                      "schema":self.schema_name,
-                                      "table":self.table_name
-                                  })
+            result = conn.execute(sql_find_identity,self._get_default_parameter_stmt())
             self.column_identity = [row.identity_column for row in result]
         #self.column_identity = self.execute_sql_read(sql_find_identity)['identity_column'].to_list()
     def refresh_identity(self):
@@ -212,10 +211,7 @@ class TableStructure:
         ''')
         sql_get_types_col=['column_name','data_type','udt_name','domain_name']
         with self.engine.connect() as conn:
-            result = conn.execute(sql_get_types,{
-                                      "schema":self.schema_name,
-                                      "table":self.table_name
-                                  })
+            result = conn.execute(sql_get_types,self._get_default_parameter_stmt())
             
             df_types=pd.DataFrame([[getattr(row,col) for col in sql_get_types_col] for row in result],columns=sql_get_types_col)
             df_types=df_types.set_index('column_name')
