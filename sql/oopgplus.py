@@ -26,7 +26,7 @@ FROM information_schema.columns
 WHERE table_schema = :schema AND 
 table_name = :table;
 ''')
-sql_get_types_col=['column_name','data_type','udt_name','domain_name']
+stmt_get_types_col=['column_name','data_type','udt_name','domain_name']
 
 def _apply_escaping(sentence:str):
     return sentence.replace("'","''")
@@ -213,7 +213,7 @@ class TableStructure:
         with self.engine.connect() as conn:
             result = conn.execute(stmt_get_types,self._get_default_parameter_stmt())
             
-            df_types=pd.DataFrame([[getattr(row,col) for col in sql_get_types_col] for row in result],columns=sql_get_types_col)
+            df_types=pd.DataFrame([[getattr(row,col) for col in stmt_get_types_col] for row in result],columns=stmt_get_types_col)
             df_types=df_types.set_index('column_name')
             
         yield df_types.copy(), 'get types'
