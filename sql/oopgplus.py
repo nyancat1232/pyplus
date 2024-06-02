@@ -20,6 +20,12 @@ AND relname = :table
 AND attidentity = 'a';
 ''')
 
+sql_get_types = text(f'''
+SELECT column_name, data_type, udt_name, domain_name
+FROM information_schema.columns
+WHERE table_schema = :schema AND 
+table_name = :table;
+''')
 
 def _apply_escaping(sentence:str):
     return sentence.replace("'","''")
@@ -203,12 +209,6 @@ class TableStructure:
         return self.execute_sql_write(query)
 
     def _read_process(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
-        sql_get_types = text(f'''
-        SELECT column_name, data_type, udt_name, domain_name
-        FROM information_schema.columns
-        WHERE table_schema = :schema AND 
-        table_name = :table;
-        ''')
         sql_get_types_col=['column_name','data_type','udt_name','domain_name']
         with self.engine.connect() as conn:
             result = conn.execute(sql_get_types,self._get_default_parameter_stmt())
