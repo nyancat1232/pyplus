@@ -147,7 +147,7 @@ class TableStructure:
         self.table_name = table_name
         self.engine = engine
 
-        sql_find_identity = f'''SELECT attname as identity_column
+        sql_find_identity = text(f'''SELECT attname as identity_column
         FROM pg_attribute 
         JOIN pg_class 
             ON pg_attribute.attrelid = pg_class.oid
@@ -156,7 +156,7 @@ class TableStructure:
         WHERE nspname = '{self.schema_name}'
         AND relname = '{self.table_name}'
         AND attidentity = 'a';
-        '''
+        ''')
         self.column_identity = self.execute_sql_read(sql_find_identity)['identity_column'].to_list()
     def refresh_identity(self):
         warn('refresh_identity of TableStructure will be deprecated. Use column_identity instead.',DeprecationWarning,stacklevel=2)
