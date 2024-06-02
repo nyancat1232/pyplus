@@ -204,12 +204,12 @@ class TableStructure:
         return self.execute_sql_write(query)
 
     def _read_process(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
-        sql_get_types = f'''
+        sql_get_types = text(f'''
         SELECT column_name, data_type, udt_name, domain_name
         FROM information_schema.columns
         WHERE table_schema = '{self.schema_name}' AND 
         table_name = '{self.table_name}';
-        '''
+        ''')
         df_types=self.execute_sql_read(sql_get_types,index_column='column_name')
         yield df_types.copy(), 'get types'
 
