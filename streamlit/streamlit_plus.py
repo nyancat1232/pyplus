@@ -58,8 +58,8 @@ class TabsPlus:
                     col.subheader(tab_name)
             case 'popover':
                 cols = st.columns(len(tabs))
-                for col,tab in zip(cols,tabs):
-                    ret_list.append(col.popover(tab))
+                for col,tab_name in zip(cols,tabs):
+                    ret_list.append(col.popover(tab_name))
             case _:
                 raise NotImplementedError(f'no connection {connection}')
         self._streamlit_display_index_num = ret_list
