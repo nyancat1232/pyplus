@@ -54,6 +54,8 @@ class TabsPlus:
                 ret_list = st.tabs(tabs)
             case 'column':
                 ret_list = st.columns(len(tabs))
+                for col,tab_name in zip(ret_list,tabs):
+                    col.subheader(tab_name)
             case 'popover':
                 cols = st.columns(len(tabs))
                 for col,tab in zip(cols,tabs):
