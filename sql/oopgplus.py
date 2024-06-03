@@ -125,15 +125,20 @@ class TableStructure:
     engine : sqlalchemy.Engine
 
     column_identity : str
+    
+    def _execute_to_pandas(self,stmt,stmt_columns):
+        with self.engine.connect() as conn:
+            result = conn.execute(stmt,self._get_default_parameter_stmt())
+            
+            df_types=pd.DataFrame([[getattr(row,col) for col in stmt_columns] for row in result],columns=stmt_columns)
+            return df_types
+
 
     def _get_foreign_tables_list(self):
-        with self.engine.connect() as conn:
-            result = conn.execute(stmt_foreign,self._get_default_parameter_stmt())
-            
-            df_types=pd.DataFrame([[getattr(row,col) for col in stmt_foreign_col] for row in result],columns=stmt_foreign_col)
-            df_types=df_types.set_index('current_column_name')
-            df_types = df_types.drop_duplicates()
-            return df_types
+        df_types = self._execute_to_pandas(stmt_foreign,stmt_foreign_col)
+        df_types=df_types.set_index('current_column_name')
+        df_types = df_types.drop_duplicates()
+        return df_types
         
     def get_foreign_tables(self)->dict[str,Self]:
         dd=self._get_foreign_tables_list().reset_index().to_dict('records')
@@ -200,7 +205,7 @@ class TableStructure:
                     return ret.set_index(self.column_identity)
                 except:
                     return ret
-                
+
     def execute_sql_write(self,sql):
         with self.engine.connect() as conn:
             conn.execute(sql)
@@ -219,12 +224,9 @@ class TableStructure:
         return self.execute_sql_write(query)
 
     def _read_process(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
-        with self.engine.connect() as conn:
-            result = conn.execute(stmt_get_types,self._get_default_parameter_stmt())
-            
-            df_types=pd.DataFrame([[getattr(row,col) for col in stmt_get_types_col] for row in result],columns=stmt_get_types_col)
-            df_types=df_types.set_index('column_name')
-            
+        df_types = self._execute_to_pandas(stmt_get_types,stmt_get_types_col)
+        df_types=df_types.set_index('column_name')
+        
         yield df_types.copy(), 'get types'
 
         sql_content = text(f"SELECT * FROM {self.schema_name}.{self.table_name}")
