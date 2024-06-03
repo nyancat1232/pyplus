@@ -165,13 +165,13 @@ class TableStructure:
             return False
 
     def get_default_value(self):
-        sql = f'''SELECT column_name, column_default
+        stmt_default = f'''SELECT column_name, column_default
         FROM information_schema.columns
         WHERE table_schema = '{self.schema_name}'
         AND table_name = '{self.table_name}'
         AND column_default IS NOT NULL ;
         '''
-        return self._execute_sql_read_legacy(sql).set_index('column_name')
+        return self._execute_sql_read_legacy(stmt_default).set_index('column_name')
     
     def _get_default_parameter_stmt(self):
         return {"schema":self.schema_name,"table":self.table_name}
