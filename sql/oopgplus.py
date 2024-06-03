@@ -193,10 +193,6 @@ class TableStructure:
         with self.engine.connect() as conn:
             result = conn.execute(stmt_find_identity,self._get_default_parameter_stmt())
             self.column_identity = [row.identity_column for row in result]
-        #self.column_identity = self.execute_sql_read(sql_find_identity)['identity_column'].to_list()
-    def refresh_identity(self):
-        warn('refresh_identity of TableStructure will be deprecated. Use column_identity instead.',DeprecationWarning,stacklevel=2)
-        return self.column_identity
 
     def execute_sql_write(self,sql):
         with self.engine.connect() as conn:
