@@ -28,6 +28,19 @@ table_name = :table;
 ''')
 stmt_get_types_col=['column_name','data_type','udt_name','domain_name']
 
+stmt_foreign = text(f'''
+SELECT KCU.column_name AS current_column_name,
+    CCU.table_schema AS upper_schema, 
+    CCU.table_name AS upper_table
+FROM information_schema.key_column_usage AS KCU
+JOIN information_schema.constraint_column_usage AS CCU ON KCU.constraint_name = CCU.constraint_name
+JOIN information_schema.table_constraints AS TC ON KCU.constraint_name = TC.constraint_name
+WHERE TC.constraint_type = 'FOREIGN KEY'
+AND KCU.table_schema=:schema
+AND KCU.table_name=:table;
+''')
+stmt_foreign_col=['current_column_name','upper_schema','upper_table']
+
 def _apply_escaping(sentence:str):
     return sentence.replace("'","''")
 
@@ -114,18 +127,6 @@ class TableStructure:
     column_identity : str
 
     def _get_foreign_tables_list(self):
-        stmt_foreign = text(f'''
-        SELECT KCU.column_name AS current_column_name,
-            CCU.table_schema AS upper_schema, 
-            CCU.table_name AS upper_table
-        FROM information_schema.key_column_usage AS KCU
-        JOIN information_schema.constraint_column_usage AS CCU ON KCU.constraint_name = CCU.constraint_name
-        JOIN information_schema.table_constraints AS TC ON KCU.constraint_name = TC.constraint_name
-        WHERE TC.constraint_type = 'FOREIGN KEY'
-        AND KCU.table_schema=:schema
-        AND KCU.table_name=:table;
-        ''')
-        stmt_foreign_col=['current_column_name','upper_schema','upper_table']
         with self.engine.connect() as conn:
             result = conn.execute(stmt_foreign,self._get_default_parameter_stmt())
             
