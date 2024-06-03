@@ -9,43 +9,45 @@ import pyplus.builtin as bp
 import networkx as nx
 from warnings import warn
 
-stmt_find_identity = text(f'''SELECT attname as identity_column
-FROM pg_attribute 
-JOIN pg_class 
+stmt_find_identity = text(f'''
+SELECT attname as identity_column
+  FROM pg_attribute 
+  JOIN pg_class 
     ON pg_attribute.attrelid = pg_class.oid
-JOIN pg_namespace
+  JOIN pg_namespace
     ON pg_class.relnamespace = pg_namespace.oid
-WHERE nspname = :schema
-AND relname = :table
-AND attidentity = 'a';
+ WHERE nspname = :schema
+   AND relname = :table
+   AND attidentity = 'a';
 ''')
 
 stmt_get_types = text(f'''
 SELECT column_name, data_type, udt_name, domain_name
-FROM information_schema.columns
-WHERE table_schema = :schema AND 
-table_name = :table;
+  FROM information_schema.columns
+ WHERE table_schema = :schema AND 
+       table_name = :table;
 ''')
 stmt_get_types_col=['column_name','data_type','udt_name','domain_name']
 
 stmt_foreign = text(f'''
 SELECT KCU.column_name AS current_column_name,
-    CCU.table_schema AS upper_schema, 
-    CCU.table_name AS upper_table
-FROM information_schema.key_column_usage AS KCU
-JOIN information_schema.constraint_column_usage AS CCU ON KCU.constraint_name = CCU.constraint_name
-JOIN information_schema.table_constraints AS TC ON KCU.constraint_name = TC.constraint_name
-WHERE TC.constraint_type = 'FOREIGN KEY'
-AND KCU.table_schema=:schema
-AND KCU.table_name=:table;
+       CCU.table_schema AS upper_schema, 
+       CCU.table_name AS upper_table
+  FROM information_schema.key_column_usage AS KCU
+  JOIN information_schema.constraint_column_usage AS CCU ON KCU.constraint_name = CCU.constraint_name
+  JOIN information_schema.table_constraints AS TC ON KCU.constraint_name = TC.constraint_name
+ WHERE TC.constraint_type = 'FOREIGN KEY'
+   AND KCU.table_schema=:schema
+   AND KCU.table_name=:table;
 ''')
 stmt_foreign_col=['current_column_name','upper_schema','upper_table']
 
-stmt_default = text(f'''SELECT column_name, column_default
-FROM information_schema.columns
-WHERE table_schema = :schema
-AND table_name = :table
-AND column_default IS NOT NULL ;
+stmt_default = text(f'''
+SELECT column_name, column_default
+  FROM information_schema.columns
+ WHERE table_schema = :schema
+   AND table_name = :table
+   AND column_default IS NOT NULL ;
 ''')
 stmt_default_col=['column_name','column_default']
 
