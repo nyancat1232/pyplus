@@ -198,22 +198,6 @@ class TableStructure:
         warn('refresh_identity of TableStructure will be deprecated. Use column_identity instead.',DeprecationWarning,stacklevel=2)
         return self.column_identity
 
-    def _execute_sql_read_legacy(self,sql,index_column:str|None=None,drop_duplicates:bool=False)->pd.DataFrame:
-        warn('_execute_sql_read_legacy method will be deprecated ')
-        with self.engine.connect() as conn:
-            ret = pd.read_sql_query(sql=sql,con=conn)
-
-            if drop_duplicates:
-                ret = ret.drop_duplicates()
-
-            if index_column:
-                return ret.set_index(index_column)
-            else:
-                try:
-                    return ret.set_index(self.column_identity)
-                except:
-                    return ret
-
     def execute_sql_write(self,sql):
         with self.engine.connect() as conn:
             conn.execute(sql)
@@ -238,7 +222,11 @@ class TableStructure:
         yield df_types.copy(), 'get types'
 
         sql_content = text(f"SELECT * FROM {self.schema_name}.{self.table_name}")
-        df_content = self._execute_sql_read_legacy(sql_content)
+        with self.engine.connect() as conn:
+            df_content = pd.read_sql_query(sql=sql_content,con=conn)
+
+            df_content=df_content.set_index(self.column_identity)
+
         column_identity = df_content.index.name
 
         conv_type = {column_name:_convert_pgsql_type_to_pandas_type(df_types['data_type'][column_name]) for column_name 
