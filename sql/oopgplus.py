@@ -114,7 +114,7 @@ class TableStructure:
     column_identity : str
 
     def _get_foreign_tables_list(self):
-        sql = text(f'''
+        stmt_foreign = text(f'''
         SELECT KCU.column_name AS current_column_name,
             CCU.table_schema AS upper_schema, 
             CCU.table_name AS upper_table
@@ -125,11 +125,11 @@ class TableStructure:
         AND KCU.table_schema=:schema
         AND KCU.table_name=:table;
         ''')
-        sql_col=['current_column_name','upper_schema','upper_table']
+        stmt_foreign_col=['current_column_name','upper_schema','upper_table']
         with self.engine.connect() as conn:
-            result = conn.execute(sql,self._get_default_parameter_stmt())
+            result = conn.execute(stmt_foreign,self._get_default_parameter_stmt())
             
-            df_types=pd.DataFrame([[getattr(row,col) for col in sql_col] for row in result],columns=sql_col)
+            df_types=pd.DataFrame([[getattr(row,col) for col in stmt_foreign_col] for row in result],columns=stmt_foreign_col)
             df_types=df_types.set_index('current_column_name')
             df_types = df_types.drop_duplicates()
             return df_types
