@@ -114,7 +114,7 @@ class TableStructure:
     column_identity : str
 
     def _get_foreign_tables_list(self):
-        sql = f'''
+        sql = text(f'''
         SELECT KCU.column_name AS current_column_name,
             CCU.table_schema AS upper_schema, 
             CCU.table_name AS upper_table
@@ -122,11 +122,18 @@ class TableStructure:
         JOIN information_schema.constraint_column_usage AS CCU ON KCU.constraint_name = CCU.constraint_name
         JOIN information_schema.table_constraints AS TC ON KCU.constraint_name = TC.constraint_name
         WHERE TC.constraint_type = 'FOREIGN KEY'
-        AND KCU.table_schema='{self.schema_name}'
-        AND KCU.table_name='{self.table_name}';
-        '''
-        return self._execute_sql_read_legacy(sql,index_column='current_column_name',drop_duplicates=True)
-    
+        AND KCU.table_schema=:schema
+        AND KCU.table_name=:table;
+        ''')
+        sql_col=['current_column_name','upper_schema','upper_table']
+        with self.engine.connect() as conn:
+            result = conn.execute(sql,self._get_default_parameter_stmt())
+            
+            df_types=pd.DataFrame([[getattr(row,col) for col in sql_col] for row in result],columns=sql_col)
+            df_types=df_types.set_index('current_column_name')
+            df_types = df_types.drop_duplicates()
+            return df_types
+        
     def get_foreign_tables(self)->dict[str,Self]:
         dd=self._get_foreign_tables_list().reset_index().to_dict('records')
         ret = {val['current_column_name']:
