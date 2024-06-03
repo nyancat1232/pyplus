@@ -41,6 +41,14 @@ AND KCU.table_name=:table;
 ''')
 stmt_foreign_col=['current_column_name','upper_schema','upper_table']
 
+stmt_default = text(f'''SELECT column_name, column_default
+FROM information_schema.columns
+WHERE table_schema = :schema
+AND table_name = :table
+AND column_default IS NOT NULL ;
+''')
+stmt_default_col=['column_name','column_default']
+
 def _apply_escaping(sentence:str):
     return sentence.replace("'","''")
 
@@ -165,13 +173,6 @@ class TableStructure:
             return False
 
     def get_default_value(self):
-        stmt_default = text(f'''SELECT column_name, column_default
-        FROM information_schema.columns
-        WHERE table_schema = :schema
-        AND table_name = :table
-        AND column_default IS NOT NULL ;
-        ''')
-        stmt_default_col=['column_name','column_default']
         df_ret = self._execute_to_pandas(stmt_default,stmt_default_col)
         df_ret = df_ret.set_index('column_name')
         return df_ret
