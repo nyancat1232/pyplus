@@ -165,13 +165,16 @@ class TableStructure:
             return False
 
     def get_default_value(self):
-        stmt_default = f'''SELECT column_name, column_default
+        stmt_default = text(f'''SELECT column_name, column_default
         FROM information_schema.columns
-        WHERE table_schema = '{self.schema_name}'
-        AND table_name = '{self.table_name}'
+        WHERE table_schema = :schema
+        AND table_name = :table
         AND column_default IS NOT NULL ;
-        '''
-        return self._execute_sql_read_legacy(stmt_default).set_index('column_name')
+        ''')
+        stmt_default_col=['column_name','column_default']
+        df_ret = self._execute_to_pandas(stmt_default,stmt_default_col)
+        df_ret = df_ret.set_index('column_name')
+        return df_ret
     
     def _get_default_parameter_stmt(self):
         return {"schema":self.schema_name,"table":self.table_name}
