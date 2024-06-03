@@ -148,8 +148,8 @@ class TableStructure:
 
     def _get_foreign_tables_list(self):
         df_types = self._execute_to_pandas(stmt_foreign,stmt_foreign_col)
-        df_types=df_types.set_index('current_column_name')
         df_types = df_types.drop_duplicates()
+        df_types=df_types.set_index('current_column_name')
         return df_types
         
     def get_foreign_tables(self)->dict[str,Self]:
