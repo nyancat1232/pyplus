@@ -1,5 +1,6 @@
-
+from warnings import warn
 def write_columns(*positional_data,**keyword_data):
+    warn('write_columns() will be deprecated',category=DeprecationWarning)
     '''
     write by columns
     ## Parameters:

@@ -1,7 +1,8 @@
 import pandas as pd
 from sqlalchemy.sql import text
-
+from warnings import warn
 def get_identity(schema_name:str,table_name:str,st_conn):
+    warn('get_identity() will be deprecated',category=DeprecationWarning)
     sql = f'''SELECT attname as identity_column
   FROM pg_attribute 
   JOIN pg_class 
@@ -19,6 +20,7 @@ def get_identity(schema_name:str,table_name:str,st_conn):
         return ret['identity_column']
 
 def read_from_server(schema_name:str,table_name:str,st_conn):
+    warn('read_from_server() will be deprecated',category=DeprecationWarning)
     '''
     read a table form schema_name.table_name by using SQL query.
     ## Parameters:
@@ -47,6 +49,7 @@ def read_from_server(schema_name:str,table_name:str,st_conn):
         return result
 
 def expand_foreign_column(schema_name:str,table_name:str,st_conn):
+    warn('expand_foreign_column() will be deprecated',category=DeprecationWarning)
     '''
     function of read_from_server as expanded column of foreign key
     ## Parameters:
@@ -93,6 +96,7 @@ def expand_foreign_column(schema_name:str,table_name:str,st_conn):
     return df_result
 
 def get_foreign_id_table(to_column:str,schema_name:str,table_name:str,st_conn):
+    warn('get_foreign_id_table() will be deprecated',category=DeprecationWarning)
     '''
     ## Examples:
     >> id foreign_id
@@ -119,6 +123,7 @@ def get_foreign_id_table(to_column:str,schema_name:str,table_name:str,st_conn):
     return df_result
 
 def get_columns(schema_name:str,table_name:str,st_conn):
+    warn('get_columns() will be deprecated',category=DeprecationWarning)
     sql = f'''SELECt column_name,data_type
   FROM information_schema.columns
  WHERE table_schema='{schema_name}'
@@ -130,6 +135,7 @@ def get_columns(schema_name:str,table_name:str,st_conn):
         return ret.set_index('column_name')
 
 def get_foreign_keys(schema_name:str,table_name:str,st_conn):
+    warn('get_foreign_keys() will be deprecated',category=DeprecationWarning)
     '''
     get foreign key of a table
     ## Parameters:
@@ -169,6 +175,7 @@ def get_foreign_keys(schema_name:str,table_name:str,st_conn):
         return ret.set_index('current_column_name')
     
 def get_table_list(st_conn):
+    warn('get_table_list() will be deprecated',category=DeprecationWarning)
     '''
     Get table list in a database.
     ## Parameters:
@@ -191,6 +198,7 @@ def get_table_list(st_conn):
         return ret
     
 def get_default_value(schema_name:str,table_name:str,st_conn):
+    warn('get_default_value() will be deprecated',category=DeprecationWarning)
     sql = f'''SELECT column_name, column_default
   FROM information_schema.columns
  WHERE table_schema = '{schema_name}'
@@ -204,6 +212,7 @@ def get_default_value(schema_name:str,table_name:str,st_conn):
         return ret.set_index('column_name')
     
 def create_empty_with_id_with_column(columns:dict,schema_name:str,table_name:str,st_conn):
+    warn('create_empty_with_id_with_column() will be deprecated',category=DeprecationWarning)
     additional_column=''
     for column in reversed(columns.items()):
         additional_column = ",".join([" ".join(column),additional_column])
@@ -220,6 +229,7 @@ def create_empty_with_id_with_column(columns:dict,schema_name:str,table_name:str
         session.commit()
 
 def create_columns(columns:dict,schema_name:str,table_name:str,st_conn):
+    warn('create_columns() will be deprecated',category=DeprecationWarning)
     additional_column=''
     for column in reversed(columns.items()):
         if len(columns)>1:
@@ -238,6 +248,7 @@ def create_columns(columns:dict,schema_name:str,table_name:str,st_conn):
 
       
 def write_to_server(df:pd.DataFrame,schema_name:str,table_name:str,st_conn):
+    warn('write_to_server() will be deprecated',category=DeprecationWarning)
     '''
     append a dataframe to database by using df.to_sql.
     ## Parameters:
@@ -271,6 +282,7 @@ def write_to_server(df:pd.DataFrame,schema_name:str,table_name:str,st_conn):
         return df.to_sql(name=table_name,con=conn_conn,schema=schema_name,if_exists='append',index=False)
 
 def upload_to_sql_by_value(schema_name,table_name,st_conn,select_column,select_val,edit_column,edit_value):
+    warn('upload_to_sql_by_value() will be deprecated',category=DeprecationWarning)
     '''
     Select column and then value for selecting a row. Edit a value in a row.
 
@@ -298,6 +310,7 @@ def upload_to_sql_by_value(schema_name,table_name,st_conn,select_column,select_v
         session.commit()
 
 def upload_to_sql_by_id(sr:pd.Series,schema_name,table_name,st_conn,id_row):
+    warn('upload_to_sql_by_id() will be deprecated',category=DeprecationWarning)
     '''
     Upload by id.
     

@@ -5,8 +5,9 @@ from dataclasses import dataclass
 from typing import Callable,Any
 import re
 from unicodedata import normalize
-
+from warnings import warn
 def from_csv_to_dataframe(label:str,**dataframe_keywords)->pd.DataFrame:
+    warn('from_csv_to_dataframe() will be deprecated',category=DeprecationWarning)
     '''
     Read a csv file using a ßstrealit uploader
     ## Parameters:
@@ -27,6 +28,7 @@ def from_csv_to_dataframe(label:str,**dataframe_keywords)->pd.DataFrame:
 
 
 def from_pdf_to_dataframe(label,number=0,**dataframe_keywords)->pd.DataFrame:
+    warn('from_pdf_to_dataframe() will be deprecated',category=DeprecationWarning)
     if file := st.file_uploader(label=label,type="pdf"):
         #df = tb.read_pdf(file)[number]
         with pdfp.open(file) as pdf:
@@ -34,16 +36,19 @@ def from_pdf_to_dataframe(label,number=0,**dataframe_keywords)->pd.DataFrame:
         return pd.DataFrame(lis_,**dataframe_keywords)
 
 def from_txt_to_dataframe(label,preprocess_function,**dataframe_keywords)->pd.DataFrame:
+    warn('from_txt_to_dataframe() will be deprecated',category=DeprecationWarning)
     if text := st.text_area(label=label):
         txt_pre = preprocess_function(text)
         df = pd.DataFrame(txt_pre,**dataframe_keywords)
         return df.set_axis(df.loc[0],axis=1).drop(labels=[0],axis=0)
 
 def from_xls_to_dataframe(label,**dataframe_keywords)->pd.DataFrame:
+    warn('from_xls_to_dataframe() will be deprecated',category=DeprecationWarning)
     if file := st.file_uploader(label=label,type='xls'):
         return pd.read_excel(file,engine="xlrd",**dataframe_keywords)
     
 def from_parquet_to_dataframe(label,**dataframe_keywords)->pd.DataFrame:
+    warn('from_parquet_to_dataframe() will be deprecated',category=DeprecationWarning)
     """Read a parquet file using a ßstrealit uploader
 
     Args:
@@ -81,6 +86,7 @@ class FileExecutor:
     behaviors : list[FileDescription] = []
 
     def append_behavior(self,file_regex_str:str,read_method:Callable,post_method:Callable=None):
+        warn('append_behavior() will be deprecated',category=DeprecationWarning)
         if post_method is None:
             self.behaviors.append(FileDescription(file_regex_str,read_method))
         else:
@@ -88,6 +94,7 @@ class FileExecutor:
         return self.behaviors
 
     def execute_file_descriptions(self,show:bool=False,label:str='multifiles test')->dict[str,pd.DataFrame]:
+        warn('execute_file_descriptions() will be deprecated',category=DeprecationWarning)
         '''
         Accept multiple files and reads some files you want.
         ## Parameters:

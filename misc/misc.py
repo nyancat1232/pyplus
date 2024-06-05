@@ -1,5 +1,6 @@
-
+from warnings import warn
 def creation(type:Literal['bool','str'],rows,cols)->pd.DataFrame:
+    warn('creation() will be deprecated',category=DeprecationWarning)
     match type:
         case 'bool':
             return pd.DataFrame({col:[False for _ in rows] for col in cols}).set_index(rows)
@@ -7,6 +8,7 @@ def creation(type:Literal['bool','str'],rows,cols)->pd.DataFrame:
             return pd.DataFrame({col:[None for _ in rows] for col in cols}).set_index(rows)
 
 def get_foreign_id_from_value(readd:pd.DataFrame,expand:pd.DataFrame,row,column):
+    warn('get_foreign_id_from_value() will be deprecated',category=DeprecationWarning)
     '''
         a.b c.d
     30  3   4
@@ -24,6 +26,7 @@ def get_foreign_id_from_value(readd:pd.DataFrame,expand:pd.DataFrame,row,column)
     return df_repeat.loc[row,column]
 
 def get_mode_by_compare_table(df_compare:pd.DataFrame):
+    warn('get_mode_by_compare_table() will be deprecated',category=DeprecationWarning)
     df_mode = creation('str',df_compare.index,filter_new(df_compare).columns)
     for row in df_compare.index:
         for column in df_compare.columns:
@@ -39,6 +42,7 @@ def get_mode_by_compare_table(df_compare:pd.DataFrame):
     return df_mode
 
 def get_mode(comp:pd.DataFrame,readd:pd.DataFrame,expand:pd.DataFrame)->pd.DataFrame:
+    warn('get_mode() will be deprecated',category=DeprecationWarning)
     df_new_ids = creation('str',comp.index,comp.columns)
     for ind in df_new_ids.index:
         for col in df_new_ids.columns:
@@ -53,6 +57,7 @@ def get_mode(comp:pd.DataFrame,readd:pd.DataFrame,expand:pd.DataFrame)->pd.DataF
 
 
 def get_mode_points(df_mode:pd.DataFrame)->list[dict]:
+    warn('get_mode_points() will be deprecated',category=DeprecationWarning)
     df_temp = df_mode
     split=df_temp.to_dict(orient='split')
     temp = [
@@ -71,16 +76,19 @@ def get_mode_points(df_mode:pd.DataFrame)->list[dict]:
     return ret
 
 def get_vals(l:list[dict],df:pd.DataFrame)->list[dict]:
+    warn('get_vals() will be deprecated',category=DeprecationWarning)
     cp = l.copy()
     for point in cp:
         point['val'] = df.loc[point['row'],point['col']]
     return cp
 
 def col_to_colinf(l:list[dict])->list[dict]:
+    warn('col_to_colinf() will be deprecated',category=DeprecationWarning)
     cp = l.copy()
     for di in cp:
         di['col'] = get_column_address(di['col'])
     return cp
 
 def get_column_address(col_name:str)->dict:
+    warn('get_column_address() will be deprecated',category=DeprecationWarning)
     return {'address':col_name.split(".")[:-1], 'column_name':col_name.split(".")[-1]}
