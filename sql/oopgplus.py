@@ -497,13 +497,3 @@ def create_schema(engine:sqlalchemy.Engine,schema_name:str)->SchemaStructure:
     sql = text(f'''CREATE SCHEMA "{schema_name}" ''')
     _execute_globally(engine,sql)
     return SchemaStructure(schema_name,engine)
-
-class SQLALchemyPlus:
-    engine : sqlalchemy.Engine
-    tables : list[TableStructure]
-
-    def __init__(self,engine:sqlalchemy.Engine):
-        self.engine = engine
-    
-    def add_tables(self,schema_name:str,table_name:str):
-        self.tables.append(TableStructure(schema_name,table_name))
