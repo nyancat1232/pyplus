@@ -23,7 +23,10 @@ SELECT attname as identity_column
 
 stmt_get_types_col=['column_name','data_type','udt_name','domain_name']
 stmt_get_types = text(f'''
-SELECT column_name, data_type, udt_name, domain_name
+SELECT column_name,
+       data_type,
+       udt_name,
+       domain_name
   FROM information_schema.columns
  WHERE table_schema = :schema 
        AND table_name = :table;
@@ -46,7 +49,8 @@ SELECT KCU.column_name AS current_column_name,
 
 stmt_default_col=['column_name','column_default']
 stmt_default = text(f'''
-SELECT column_name, column_default
+SELECT column_name,
+       column_default
   FROM information_schema.columns
  WHERE table_schema = :schema
        AND table_name = :table
