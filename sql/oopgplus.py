@@ -21,14 +21,15 @@ SELECT attname as identity_column
        AND attidentity = 'a';
 ''')
 
+stmt_get_types_col=['column_name','data_type','udt_name','domain_name']
 stmt_get_types = text(f'''
 SELECT column_name, data_type, udt_name, domain_name
   FROM information_schema.columns
  WHERE table_schema = :schema 
        AND table_name = :table;
 ''')
-stmt_get_types_col=['column_name','data_type','udt_name','domain_name']
 
+stmt_foreign_col=['current_column_name','upper_schema','upper_table']
 stmt_foreign = text(f'''
 SELECT KCU.column_name AS current_column_name,
        CCU.table_schema AS upper_schema, 
@@ -42,8 +43,8 @@ SELECT KCU.column_name AS current_column_name,
        AND KCU.table_schema=:schema
        AND KCU.table_name=:table;
 ''')
-stmt_foreign_col=['current_column_name','upper_schema','upper_table']
 
+stmt_default_col=['column_name','column_default']
 stmt_default = text(f'''
 SELECT column_name, column_default
   FROM information_schema.columns
@@ -51,7 +52,6 @@ SELECT column_name, column_default
        AND table_name = :table
        AND column_default IS NOT NULL ;
 ''')
-stmt_default_col=['column_name','column_default']
 
 def _apply_escaping(sentence:str):
     return sentence.replace("'","''")
