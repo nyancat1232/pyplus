@@ -138,6 +138,9 @@ class TableStructure:
 
     column_identity : str
     
+    def _get_default_parameter_stmt(self):
+        return {"schema":self.schema_name,"table":self.table_name}
+
     def __init__(self,schema_name:str,table_name:str,
                  engine:sqlalchemy.Engine):
         self.schema_name = schema_name
@@ -147,7 +150,7 @@ class TableStructure:
         with self.engine.connect() as conn:
             result = conn.execute(stmt_find_identity,self._get_default_parameter_stmt())
             self.column_identity = [row.identity_column for row in result]
-            
+
     def __repr__(self):
         return f"Table_structure. \nSchema is {self.schema_name}\nTable is {self.table_name}"
 
@@ -204,9 +207,6 @@ class TableStructure:
         df_ret = df_ret.set_index('column_name')
         return df_ret
     
-    def _get_default_parameter_stmt(self):
-        return {"schema":self.schema_name,"table":self.table_name}
-
     def _read_process(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
         df_types = self._execute_to_pandas(stmt_get_types,stmt_get_types_col)
         df_types=df_types.set_index('column_name')
