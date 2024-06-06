@@ -486,16 +486,18 @@ class SchemaStructure:
             if rc in type_dict:
                 raise ValueError(f'{rc} is reserved.')
         
-        qlines = [" ".join(_ret_a_line(key,type_dict[key])) for key in type_dict]
-        qlines.insert(0,"id bigint NOT NULL GENERATED ALWAYS AS IDENTITY")
-        qlines.append("PRIMARY KEY (id)")
-        query=text(f'''CREATE TABLE {self.schema_name}.{table_name} (
-            {','.join(qlines)}
-        );''')
-        
-        self.execute_sql_write(query)
+        with self.engine.connect() as conn:
+            query=text(f'''CREATE TABLE {self.schema_name}.{table_name}
+                        (
+                         id bigint NOT NULL GENERATED ALWAYS AS IDENTITY,
+                         PRIMARY KEY (id)
+                        );
+            ''')
+            conn.execute(query)
+            conn.commit()
 
         ts = TableStructure(self.schema_name,table_name,self.engine)
+        ts.append_column(**type_dict)
         return ts
 
 def _execute_globally(engine:sqlalchemy.Engine,sql:str):
