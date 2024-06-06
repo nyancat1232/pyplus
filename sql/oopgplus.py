@@ -346,6 +346,15 @@ class TableStructure:
         
         return self.read()
     
+    def change_column_name(self,**kwarg):
+        cp = kwarg.copy()
+        with self.engine.connect() as conn:
+            for name in cp:
+                sql =text( f'ALTER TABLE IF EXISTS {self.schema_name}.{self.table_name} RENAME {name} TO {cp[name]};')
+                conn.execute(sql)
+            conn.commit()
+        return self.read()
+
     def upload(self,id_row:int,**kwarg):
         cp = kwarg.copy()
         for column in kwarg:
