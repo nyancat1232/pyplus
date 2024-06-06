@@ -147,6 +147,9 @@ class TableStructure:
         with self.engine.connect() as conn:
             result = conn.execute(stmt_find_identity,self._get_default_parameter_stmt())
             self.column_identity = [row.identity_column for row in result]
+            
+    def __repr__(self):
+        return f"Table_structure. \nSchema is {self.schema_name}\nTable is {self.table_name}"
 
     #Creation
     def append_column(self,**type_dict):
@@ -413,8 +416,6 @@ class TableStructure:
         """)
         
         return self.execute_sql_write(sql)
-    def __repr__(self):
-        return f"Table_structure. \nSchema is {self.schema_name}\nTable is {self.table_name}"
 
 
     
