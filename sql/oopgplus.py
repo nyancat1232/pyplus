@@ -113,23 +113,6 @@ def _convert_pgsql_type_to_pandas_type(pgtype:str,precision:Literal['ns']='ns',
         case _:
             raise NotImplementedError(pgtype)
 
-def _ret_a_line(key:str,dtype:str):
-    def _default_value_of_type(type:str):
-        match type:
-            case 'date':
-                return ['DEFAULT','now()']
-            case 'timestamp without time zone':
-                return ['DEFAULT','now()']
-            case 'timestamp with time zone':
-                return ['DEFAULT','now()']
-            case _:
-                return None
-            
-    ret= [f'"{key}"',dtype]
-    if (retplus := _default_value_of_type(dtype)) is not None:
-        ret.extend(retplus)
-    return ret
-
 _reserved_columns = ['id']
 
 class TableStructure:
