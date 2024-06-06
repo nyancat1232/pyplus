@@ -23,10 +23,10 @@ SELECT attname as identity_column
 
 stmt_get_types_col=['column_name','data_type','udt_name','domain_name']
 stmt_get_types = text(f'''
-SELECT column_name,
-       data_type,
-       udt_name,
-       domain_name
+SELECT column_name AS {stmt_get_types_col[0]},
+       data_type AS {stmt_get_types_col[1]},
+       udt_name AS {stmt_get_types_col[2]},
+       domain_name AS {stmt_get_types_col[3]}
   FROM information_schema.columns
  WHERE table_schema = :schema 
        AND table_name = :table;
@@ -34,9 +34,9 @@ SELECT column_name,
 
 stmt_foreign_col=['current_column_name','upper_schema','upper_table']
 stmt_foreign = text(f'''
-SELECT KCU.column_name AS current_column_name,
-       CCU.table_schema AS upper_schema, 
-       CCU.table_name AS upper_table
+SELECT KCU.column_name AS {stmt_foreign_col[0]},
+       CCU.table_schema AS {stmt_foreign_col[1]}, 
+       CCU.table_name AS {stmt_foreign_col[2]}
   FROM information_schema.key_column_usage AS KCU
        JOIN information_schema.constraint_column_usage AS CCU 
             ON KCU.constraint_name = CCU.constraint_name
@@ -49,8 +49,8 @@ SELECT KCU.column_name AS current_column_name,
 
 stmt_default_col=['column_name','column_default']
 stmt_default = text(f'''
-SELECT column_name,
-       column_default
+SELECT column_name AS {stmt_default_col[0]},
+       column_default AS {stmt_default_col[1]}
   FROM information_schema.columns
  WHERE table_schema = :schema
        AND table_name = :table
