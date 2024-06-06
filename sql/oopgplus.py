@@ -138,13 +138,33 @@ class TableStructure:
 
     column_identity : str
     
+    def __init__(self,schema_name:str,table_name:str,
+                 engine:sqlalchemy.Engine):
+        self.schema_name = schema_name
+        self.table_name = table_name
+        self.engine = engine
+
+        with self.engine.connect() as conn:
+            result = conn.execute(stmt_find_identity,self._get_default_parameter_stmt())
+            self.column_identity = [row.identity_column for row in result]
+
+    #Creation
+    def append_column(self,**type_dict):
+        for rc in _reserved_columns:
+            if rc in type_dict:
+                raise ValueError(f'{rc} is reserved.')
+        
+        qlines = [" ".join(['ADD COLUMN']+_ret_a_line(key,type_dict[key])) for key in type_dict]
+        query = text(f'''ALTER TABLE {self.schema_name}.{self.table_name} {','.join(qlines)};''')
+        return self.execute_sql_write(query)
+    
+    #Read
     def _execute_to_pandas(self,stmt,stmt_columns):
         with self.engine.connect() as conn:
             result = conn.execute(stmt,self._get_default_parameter_stmt())
             
             df_types=pd.DataFrame([[getattr(row,col) for col in stmt_columns] for row in result],columns=stmt_columns)
             return df_types
-
 
     def _get_foreign_tables_list(self):
         df_types = self._execute_to_pandas(stmt_foreign,stmt_foreign_col)
@@ -183,33 +203,6 @@ class TableStructure:
     
     def _get_default_parameter_stmt(self):
         return {"schema":self.schema_name,"table":self.table_name}
-    
-    def __init__(self,schema_name:str,table_name:str,
-                 engine:sqlalchemy.Engine):
-        self.schema_name = schema_name
-        self.table_name = table_name
-        self.engine = engine
-
-        with self.engine.connect() as conn:
-            result = conn.execute(stmt_find_identity,self._get_default_parameter_stmt())
-            self.column_identity = [row.identity_column for row in result]
-
-    def execute_sql_write(self,sql):
-        with self.engine.connect() as conn:
-            conn.execute(sql)
-            conn.commit()
-            
-        
-        return self.read()
-    
-    def append_column(self,**type_dict):
-        for rc in _reserved_columns:
-            if rc in type_dict:
-                raise ValueError(f'{rc} is reserved.')
-        
-        qlines = [" ".join(['ADD COLUMN']+_ret_a_line(key,type_dict[key])) for key in type_dict]
-        query = text(f'''ALTER TABLE {self.schema_name}.{self.table_name} {','.join(qlines)};''')
-        return self.execute_sql_write(query)
 
     def _read_process(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
         df_types = self._execute_to_pandas(stmt_get_types,stmt_get_types_col)
@@ -341,6 +334,15 @@ class TableStructure:
 
         return df.loc[row,column]
 
+    #Update
+    def execute_sql_write(self,sql):
+        with self.engine.connect() as conn:
+            conn.execute(sql)
+            conn.commit()
+            
+        
+        return self.read()
+    
     def upload(self,id_row:int,**kwarg):
         cp = kwarg.copy()
         for column in kwarg:
