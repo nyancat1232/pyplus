@@ -160,9 +160,12 @@ class TableStructure:
             if rc in type_dict:
                 raise ValueError(f'{rc} is reserved.')
         
-        qlines = [" ".join(['ADD COLUMN']+_ret_a_line(key,type_dict[key])) for key in type_dict]
-        query = text(f'''ALTER TABLE {self.schema_name}.{self.table_name} {','.join(qlines)};''')
-        return self.execute_sql_write(query)
+        with self.engine.connect() as conn:
+            for key in type_dict:
+                query = text(f'ALTER TABLE IF EXISTS {self.schema_name}.{self.table_name} ADD COLUMN {key} {type_dict[key]};')
+                conn.execute(query)
+            conn.commit()
+            
     
     #Read
     def _execute_to_pandas(self,stmt,stmt_columns):
