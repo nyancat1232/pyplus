@@ -301,7 +301,7 @@ class TableStructure:
     def get_local_val_to_id(self,column:str):
         convert_table:pd.DataFrame = bp.select_yielder(self._read_process(),'read without foreign')
         ser_filtered = convert_table[column].dropna()
-        ser_filtered.index = ser_filtered.index.astype('int')
+        ser_filtered.index = ser_filtered.index.astype('Int64')
         ret = ser_filtered.to_dict()
         ret = {ret[key]:key for key in ret}
         return ret
