@@ -415,6 +415,19 @@ class TableStructure:
         """)
         
         return self.execute_sql_write(sql)
+    
+    def connect_foreign_column(self,ts:Self,col:str):
+        stmt=text(f'''
+        ALTER TABLE IF EXISTS {self.schema_name}.{self.table_name}
+        ADD FOREIGN KEY ({col})
+        REFERENCES {ts.schema_name}.{ts.table_name} ({ts.column_identity[0]}) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID;
+                  ''')
+        with self.engine.connect() as conn:
+            conn.execute(stmt)
+            conn.commit()
 
 
     
