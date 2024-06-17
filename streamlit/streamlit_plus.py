@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
-from typing import Sequence,Callable,Literal
+from typing import Literal
+from typing import Generator,Any
 from dataclasses import dataclass
 
 def divide(old_func):
