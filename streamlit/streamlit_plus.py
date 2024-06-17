@@ -11,6 +11,17 @@ def divide(old_func):
         st.divider()
     return new_func
 
+def show_process(gen:Generator[tuple[Any,str],Any,None],column_configs=dict[str,st.column_config.Column]):
+    dd= {}
+    for df,proc_msg in gen:
+        dd[proc_msg] = df
+    
+    tp = TabsPlus('tab',*[key for key in dd])
+    for key in dd:
+        with tp[key]:
+            st.dataframe(dd[key],column_config=column_configs)
+    return dd
+
 class TabsPlus:
     '''
     st.tabs (in streamlit) with reading of text input
