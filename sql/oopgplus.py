@@ -1,7 +1,7 @@
 import pandas as pd
 from sqlalchemy.sql import text
 import sqlalchemy
-from typing import Literal,Self
+from typing import Literal,Self,Any
 from datetime import date,tzinfo
 from zoneinfo import ZoneInfo
 import numpy as np
@@ -391,31 +391,38 @@ class TableStructure:
         
         return self.execute_sql_write(sql)
     
-    def upload_append(self,**kwarg):
-        cp = kwarg.copy()
-        col_deletion = []
-        for column in kwarg:
-            if self.check_if_not_local_column(column):
-                col_deletion.append(column)
-            else:
-                match cp[column]:
-                    case pd.NaT:
-                        col_deletion.append(column)
-                    case None:
-                        col_deletion.append(column)
-        for column in col_deletion:
-            del cp[column]
+    def upload_appends(self,*rows:dict[str,Any]):
+        def process_each_row(**kwarg):
+            cp = kwarg.copy()
+            col_deletion = []
+            for column in kwarg:
+                if self.check_if_not_local_column(column):
+                    col_deletion.append(column)
+                else:
+                    match cp[column]:
+                        case pd.NaT:
+                            col_deletion.append(column)
+                        case None:
+                            col_deletion.append(column)
+            for column in col_deletion:
+                del cp[column]
+            return cp
         
+        processed_rows = [process_each_row(**row) for row in rows]
+        
+        with self.engine.connect() as conn:
+            for row in processed_rows:   
+                columns = ','.join([f'"{col}"' for col in row])
+                values = ','.join([_conversion_Sql_value(row[col]) for col in row])
+                stmt = text(f"""
+                INSERT INTO {self.schema_name}.{self.table_name} ({columns})
+                VALUES ({values})
+                """)
+                conn.execute(stmt)
+            conn.commit()
+    def upload_append(self,**kwarg:Any):
+        return self.upload_appends(kwarg)
 
-        columns = ','.join([f'"{key}"' for key in cp])
-        values = ','.join([_conversion_Sql_value(cp[key]) for key in cp])
-        sql = text(f"""
-        INSERT INTO {self.schema_name}.{self.table_name} ({columns})
-        VALUES ({values})
-        """)
-        
-        return self.execute_sql_write(sql)
-    
     def connect_foreign_column(self,ts:Self,col:str):
         stmt=text(f'''
         ALTER TABLE IF EXISTS {self.schema_name}.{self.table_name}
