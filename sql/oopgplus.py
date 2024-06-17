@@ -420,6 +420,8 @@ class TableStructure:
                 """)
                 conn.execute(stmt)
             conn.commit()
+
+        return self.read()
     def upload_append(self,**kwarg:Any):
         return self.upload_appends(kwarg)
 
