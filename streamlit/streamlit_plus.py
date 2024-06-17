@@ -11,7 +11,7 @@ def divide(old_func):
         st.divider()
     return new_func
 
-def show_process(gen:Generator[tuple[Any,str],Any,None],column_configs=dict[str,st.column_config.Column]):
+def show_process(gen:Generator[tuple[Any,str],Any,None],column_configs:dict[str,st.column_config.Column]=None):
     dd= {}
     for df,proc_msg in gen:
         dd[proc_msg] = df
