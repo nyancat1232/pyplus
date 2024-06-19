@@ -267,10 +267,6 @@ class TableStructure:
                             current_selfref=f'{current_selfref}.{foreign_col}'
                         else:
                             del df_content[current_selfref]
-                    
-
-                    
-
         yield df_types.copy(), 'get types with foreign'
 
         df_rwf = df_content.sort_index(ascending=ascending)
@@ -311,6 +307,7 @@ class TableStructure:
         return ret
         
     def _get_local_foreign_id(self,row,column)->int:
+        warn('_get_local_foreign_id(row,column) is deprecated. Use get_foreign_tables() and get_local_val_to_id(column) instead.')
         '''
         get a local foreign id of expanded dataframe.
         
