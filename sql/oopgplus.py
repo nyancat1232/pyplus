@@ -391,7 +391,24 @@ class TableStructure:
         
         return self.execute_sql_write(sql)
     
-    def upload_appends(self,*rows:dict[str,Any]):
+    def upload_appends(self,*row:dict[str,Any]):
+        '''
+        Append rows
+        
+        Parameters
+        ----------
+        row : dict[str,Any]
+            A row such as {'column1':'value1','column2':'value2',...}.
+        
+        See Also
+        --------
+        upload
+        
+        Returns
+        --------
+        pd.DataFrame
+            A dataframe without expanding foreign ids.
+        '''
         def process_each_row(**kwarg):
             cp = kwarg.copy()
             col_deletion = []
@@ -408,7 +425,7 @@ class TableStructure:
                 del cp[column]
             return cp
         
-        processed_rows = [process_each_row(**row) for row in rows]
+        processed_rows = [process_each_row(**row) for row in row]
         
         with self.engine.connect() as conn:
             for row in processed_rows:   
