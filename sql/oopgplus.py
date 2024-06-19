@@ -197,7 +197,7 @@ class TableStructure:
         df_ret = df_ret.set_index('column_name')
         return df_ret
     
-    def _read_process(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
+    def _iter_read(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
         df_types = self._execute_to_pandas(stmt_get_types,stmt_get_types_col)
         df_types=df_types.set_index('column_name')
         
@@ -279,27 +279,27 @@ class TableStructure:
         yield df_address.copy(), 'addresses'
 
     def read(self,ascending=False,columns:list[str]|None=None)->pd.DataFrame:
-        df_res = bp.select_yielder(self._read_process(ascending,columns),
+        df_res = bp.select_yielder(self._iter_read(ascending,columns),
                                  'read without foreign') 
         if columns is not None:
             df_res = df_res[columns]
         return df_res.copy()
     
     def read_expand(self,ascending=False,remove_original_id=False,columns:list[str]|None=None)->pd.DataFrame:
-        df_res = bp.select_yielder(self._read_process(ascending,remove_original_id=remove_original_id,columns=columns),
+        df_res = bp.select_yielder(self._iter_read(ascending,remove_original_id=remove_original_id,columns=columns),
                                  'read with foreign')
         if columns is not None:
             df_res = df_res[columns]
         return df_res.copy()
         
     def get_types(self)->pd.DataFrame:
-        return bp.select_yielder(self._read_process(),'get types')
+        return bp.select_yielder(self._iter_read(),'get types')
     
     def get_types_expanded(self)->pd.DataFrame:
-        return bp.select_yielder(self._read_process(),'get types with foreign')
+        return bp.select_yielder(self._iter_read(),'get types with foreign')
     
     def get_local_val_to_id(self,column:str):
-        convert_table:pd.DataFrame = bp.select_yielder(self._read_process(),'read without foreign')
+        convert_table:pd.DataFrame = bp.select_yielder(self._iter_read(),'read without foreign')
         ser_filtered = convert_table[column].dropna()
         ser_filtered.index = ser_filtered.index.astype('Int64')
         ret = ser_filtered.to_dict()
@@ -323,7 +323,7 @@ class TableStructure:
             foreign id.
         
         '''
-        df = bp.select_yielder(self._read_process(),'addresses')
+        df = bp.select_yielder(self._iter_read(),'addresses')
 
         return df.loc[row,column]
 
