@@ -12,6 +12,23 @@ def divide(old_func):
     return new_func
 
 def show_process(gen:Generator[tuple[Any,str],Any,None],column_configs:dict[str,st.column_config.Column]=None):
+    '''
+    For a generation for pyplus.builtin
+    
+    Parameters
+    ----------
+    gen : Generator
+        A generator that can be run by pyplus.builtin.
+    
+    See Also
+    --------
+    pyplus.buintin
+    
+    Returns
+    --------
+    dict
+        The key indicates the name of process, the value indicates the result of process in the time.
+    '''
     dd= {}
     for df,proc_msg in gen:
         dd[proc_msg] = df
