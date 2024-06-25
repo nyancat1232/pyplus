@@ -34,7 +34,7 @@ def show_process(gen:Generator[tuple[Any,str],Any,None],column_configs:dict[str,
     for df,proc_msg in gen:
         dd[proc_msg] = df
     
-    tp = TabsPlus('tab',*[key for key in dd])
+    tp = TabsPlus(titles=[key for key in dd],layout='tab')
     for key in dd:
         with tp[key]:
             st.dataframe(dd[key],column_config=column_configs)
@@ -50,7 +50,7 @@ class TabsPlus:
 
     Examples
     --------
-    >>> tabs = TabsPlus('tab',['apple','banana'])
+    >>> tabs = TabsPlus(titles=['apple','banana'],layout='tab')
     >>> with tabs['apple']:
     >>>     ...
 
@@ -60,38 +60,23 @@ class TabsPlus:
     >>> with tabs[0]:
     >>>     ...
     '''
-    def __init__(self,connection:Literal['tab','column','popover']='tab',*tabs:str):
-        '''
-        (description)
-        
-        Parameters
-        ----------
-        connection : 'tab' or 'column' or 'popover
-            How to display.
-        tabs : list[str]
-            What to display.
-        
-        Examples
-        --------
-        >>> tabs = stp.TabsPlus('column',['first','second','third'])
-        >>> with tabs['first']:
-        >>>     ....
-        '''
-        tab_information={tab_str:ind for ind,tab_str in enumerate(tabs)}
+    def __init__(self,*,titles:list[str],
+                 layout:Literal['tab','column','popover']='tab'):
+        tab_information={tab_str:ind for ind,tab_str in enumerate(titles)}
         ret_list=[]
-        match connection:
+        match layout:
             case 'tab':
-                ret_list = st.tabs(tabs)
+                ret_list = st.tabs(titles)
             case 'column':
-                ret_list = st.columns(len(tabs))
-                for col,tab_name in zip(ret_list,tabs):
+                ret_list = st.columns(len(titles))
+                for col,tab_name in zip(ret_list,titles):
                     col.subheader(tab_name)
             case 'popover':
-                cols = st.columns(len(tabs))
-                for col,tab_name in zip(cols,tabs):
+                cols = st.columns(len(titles))
+                for col,tab_name in zip(cols,titles):
                     ret_list.append(col.popover(tab_name))
             case _:
-                raise NotImplementedError(f'no connection {connection}')
+                raise NotImplementedError(f'no connection {layout}')
         self._streamlit_display_index_num = ret_list
         self._strs_to_num = tab_information
 
@@ -129,7 +114,7 @@ def write_columns(*positional_data,**keyword_data):
     dict_add = {num:val for num,val in enumerate(positional_data)}
     for key in keyword_data:
         dict_add[key] = keyword_data[key]
-    tp = TabsPlus('column',*dict_add)
+    tp = TabsPlus(layout='column',titles=dict_add)
     for key in dict_add:
         with tp[key]:
             st.write(key)
