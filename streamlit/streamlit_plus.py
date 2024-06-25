@@ -61,7 +61,7 @@ class TabsPlus:
     >>>     ...
     '''
     def __init__(self,*,titles:list[str],
-                 layout:Literal['tab','column','popover']='tab'):
+                 layout:Literal['tab','column','popover']='tab',hide_titles=True):
         tab_information={tab_str:ind for ind,tab_str in enumerate(titles)}
         ret_list=[]
         match layout:
@@ -69,8 +69,9 @@ class TabsPlus:
                 ret_list = st.tabs(titles)
             case 'column':
                 ret_list = st.columns(len(titles))
-                for col,tab_name in zip(ret_list,titles):
-                    col.subheader(tab_name)
+                if hide_titles==False:
+                    for col,tab_name in zip(ret_list,titles):
+                        col.subheader(tab_name)
             case 'popover':
                 cols = st.columns(len(titles))
                 for col,tab_name in zip(cols,titles):
