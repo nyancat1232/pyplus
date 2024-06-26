@@ -330,6 +330,7 @@ class TableStructure:
 
     #Update
     def execute_sql_write(self,sql):
+        warn("execute_sql_write is deprecated.",category=DeprecationWarning)
         with self.engine.connect() as conn:
             conn.execute(sql)
             conn.commit()
@@ -390,7 +391,12 @@ class TableStructure:
         WHERE {self.column_identity[0]} = {id_row};
         """)
         
-        return self.execute_sql_write(sql)
+        with self.engine.connect() as conn:
+            conn.execute(sql)
+            conn.commit()
+            
+        
+        return self.read()
     
     def upload_appends(self,*row:dict[str,Any]):
         '''
