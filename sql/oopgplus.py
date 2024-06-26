@@ -224,29 +224,29 @@ class TableStructure:
         df_content = bp.select_yielder(self._iter_read_without_foreign(), 'read without foreign')
 
         foreign_tables_ts = self.get_foreign_tables()
-        for foreign_col in foreign_tables_ts:
-            if not self.check_selfref_table(foreign_tables_ts[foreign_col]):
-                ts = foreign_tables_ts[foreign_col]
+        for col_local_foreign in foreign_tables_ts:
+            if not self.check_selfref_table(foreign_tables_ts[col_local_foreign]):
+                ts = foreign_tables_ts[col_local_foreign]
                 df_ftable_types=ts.get_types_expanded()
-                row_changer={row:f'{foreign_col}.{row}' for row in df_ftable_types.index.to_list()}
+                row_changer={row:f'{col_local_foreign}.{row}' for row in df_ftable_types.index.to_list()}
                 df_ftable_types=df_ftable_types.rename(index=row_changer)
                 df_types = pd.concat([df_types,df_ftable_types])
                 if remove_original_id:
-                    df_types = df_types.drop(index=foreign_col)
+                    df_types = df_types.drop(index=col_local_foreign)
 
                 df_ftable=ts.read_expand(ascending=ascending)
-                column_changer={col:f'{foreign_col}.{col}' for col in df_ftable.columns.to_list()}
+                column_changer={col:f'{col_local_foreign}.{col}' for col in df_ftable.columns.to_list()}
                 df_ftable=df_ftable.rename(columns=column_changer)
-                df_content = pd.merge(df_content,df_ftable,'left',left_on=foreign_col,right_index=True)
+                df_content = pd.merge(df_content,df_ftable,'left',left_on=col_local_foreign,right_index=True)
                 if remove_original_id:
-                    del df_content[foreign_col]
+                    del df_content[col_local_foreign]
             else:
-                if df_content[foreign_col].isnull().all():
+                if df_content[col_local_foreign].isnull().all():
                     continue
                 else:
                     try:
                         tos=df_content.replace({np.nan: None}).index.to_list()
-                        froms=df_content[foreign_col].replace({np.nan: None}).to_list()
+                        froms=df_content[col_local_foreign].replace({np.nan: None}).to_list()
                         exclude_none = [(fr,to) for fr,to in zip(froms,tos)
                                         if (fr is not None) and( to is not None)]
 
@@ -255,7 +255,7 @@ class TableStructure:
                     except nx.NetworkXNoCycle as noc:
                         df_content_original = df_content.copy()
 
-                        current_selfref=foreign_col
+                        current_selfref=col_local_foreign
                         while not df_content[current_selfref].isnull().all():
                             renamer = {f'{col}__selfpost':f'{current_selfref}.{col}' for col in df_content.columns}
                             df_content = pd.merge(df_content,df_content_original,'left',
@@ -263,7 +263,7 @@ class TableStructure:
                                                 suffixes=('','__selfpost'))
                             df_content =df_content.rename(columns=renamer)
 
-                            current_selfref=f'{current_selfref}.{foreign_col}'
+                            current_selfref=f'{current_selfref}.{col_local_foreign}'
                         else:
                             del df_content[current_selfref]
         yield df_types.copy(), 'get types with foreign'
