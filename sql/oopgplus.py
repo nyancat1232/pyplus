@@ -38,8 +38,8 @@ SELECT KCU.column_name AS {stmt_foreign_col[0]},
 
 stmt_default_col=['column_name','column_default']
 stmt_default = text(f'''
-SELECT column_name AS {stmt_default_col[0]},
-       column_default AS {stmt_default_col[1]}
+SELECT {stmt_default_col[0]},
+       {stmt_default_col[1]}
   FROM information_schema.columns
  WHERE table_schema = :schema
        AND table_name = :table
@@ -190,9 +190,9 @@ class TableStructure:
     def _iter_read_without_foreign(self):
         stmt_get_types_col=['column_name','data_type','domain_name']
         stmt_get_types = text(f'''
-        SELECT column_name AS {stmt_get_types_col[0]},
-            data_type AS {stmt_get_types_col[1]},
-            domain_name AS {stmt_get_types_col[2]}
+        SELECT {stmt_get_types_col[0]},
+            {stmt_get_types_col[1]},
+            {stmt_get_types_col[2]}
         FROM information_schema.columns
         WHERE table_schema = :schema 
             AND table_name = :table;
