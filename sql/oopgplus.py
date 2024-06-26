@@ -306,28 +306,6 @@ class TableStructure:
         ret = {ret[key]:key for key in ret}
         return ret
         
-    def _get_local_foreign_id(self,row,column)->int:
-        warn('_get_local_foreign_id(row,column) is deprecated. Use get_foreign_tables() and get_local_val_to_id(column) instead.')
-        '''
-        get a local foreign id of expanded dataframe.
-        
-        Parameters
-        --------
-        row
-            a row of a local table.
-        column : str
-            a foreign column of a local table such as 'fruit_id.color'
-
-        Returns
-        --------
-        int
-            foreign id.
-        
-        '''
-        df = bp.select_yielder(self._iter_read(),'addresses')
-
-        return df.loc[row,column]
-
     #Update
     def execute_sql_write(self,sql):
         warn("execute_sql_write is deprecated.",category=DeprecationWarning)
