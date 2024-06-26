@@ -201,7 +201,6 @@ class TableStructure:
     def _iter_read_without_foreign(self):
         df_types = self._execute_to_pandas(stmt_get_types,stmt_get_types_col)
         df_types=df_types.set_index('column_name')
-        
         yield df_types.copy(), 'get types'
 
         sql_content = text(f"SELECT * FROM {self.schema_name}.{self.table_name}")
@@ -283,8 +282,9 @@ class TableStructure:
         yield df_address.copy(), 'addresses'
  
     def read(self,ascending=False,columns:list[str]|None=None)->pd.DataFrame:
-        df_res = bp.select_yielder(self._iter_read(ascending,columns),
-                                 'read without foreign') 
+        df_content = bp.select_yielder(self._iter_read_without_foreign(), 'read without foreign')
+        df_rwof = df_content.sort_index(ascending=ascending)
+        df_res = df_rwof
         if columns is not None:
             df_res = df_res[columns]
         return df_res.copy()
