@@ -198,7 +198,7 @@ class TableStructure:
         df_ret = df_ret.set_index('column_name')
         return df_ret
     
-    def _iter_read(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
+    def _iter_read_without_foreign(self,ascending=False):
         df_types = self._execute_to_pandas(stmt_get_types,stmt_get_types_col)
         df_types=df_types.set_index('column_name')
         
@@ -217,7 +217,14 @@ class TableStructure:
         df_content = df_content.reset_index()
         df_content = df_content.astype(conv_type)
         df_content = df_content.set_index(column_identity)
+        yield df_content.copy(), 'read without foreign'
 
+
+    def _iter_read(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
+        df_types = bp.select_yielder(self._iter_read_without_foreign(ascending=ascending), 'get types')
+        yield df_types.copy(), 'get types'
+
+        df_content = bp.select_yielder(self._iter_read_without_foreign(ascending=ascending), 'read without foreign')
         df_rwof = df_content.sort_index(ascending=ascending)
         yield df_rwof.copy(), 'read without foreign'
 
@@ -274,7 +281,7 @@ class TableStructure:
         for col in col_sub:
             df_address[col] = df_address[col_sub[col]]
         yield df_address.copy(), 'addresses'
-
+ 
     def read(self,ascending=False,columns:list[str]|None=None)->pd.DataFrame:
         df_res = bp.select_yielder(self._iter_read(ascending,columns),
                                  'read without foreign') 
