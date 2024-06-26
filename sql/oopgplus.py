@@ -173,9 +173,6 @@ class TableStructure:
                TableStructure(val['upper_schema'],val['upper_table'],self.engine) 
                for val in dd}
         yield ret.copy(), 'get_foreign_tables'
-    def _get_foreign_tables_list(self):
-        warn('_get_foreign_tables_list() is deprecated. Use get_foreign_tables() instead.',category=DeprecationWarning)
-        return bp.select_yielder(self._iter_foreign_tables(),'get_foreign_tables_list')
     def get_foreign_tables(self)->dict[str,Self]:
         return bp.select_yielder(self._iter_foreign_tables(),'get_foreign_tables')
     
