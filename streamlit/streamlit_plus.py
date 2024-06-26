@@ -44,9 +44,21 @@ class TabsPlus:
     '''
     st.tabs (in streamlit) with reading of text input
 
+    Parameters
+    --------
+    titles: list[str]
+        titles for displaying each tabs
+    layout: 'tab', 'column', 'popover'
+        specifies how to display each tabs.
+        If 'tab', tabs will be shown as st.tabs.
+        If 'column', tabs will be shown as st.column.
+        If 'popover', tabs will be shown as st.popover.
+
     See Also
     --------
     st.tabs
+    st.column
+    st.popover
 
     Examples
     --------
