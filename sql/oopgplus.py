@@ -221,11 +221,7 @@ class TableStructure:
 
     def _iter_read(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
         df_types = bp.select_yielder(self._iter_read_without_foreign(), 'get types')
-        yield df_types.copy(), 'get types'
-
         df_content = bp.select_yielder(self._iter_read_without_foreign(), 'read without foreign')
-        df_rwof = df_content.sort_index(ascending=ascending)
-        yield df_rwof.copy(), 'read without foreign'
 
         foreign_tables_ts = self.get_foreign_tables()
         for foreign_col in foreign_tables_ts:
@@ -275,7 +271,7 @@ class TableStructure:
         df_rwf = df_content.sort_index(ascending=ascending)
         yield df_rwf.copy(), 'read with foreign'
 
-        df_address=df_rwof.copy()
+        df_address=df_content.copy()
         col_sub = {col:col[:col.find('.')] for col in df_rwf.columns if col.find('.')!=-1}
         for col in col_sub:
             df_address[col] = df_address[col_sub[col]]
