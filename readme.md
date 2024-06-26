@@ -1,2 +1,5 @@
 - sql
     - CRUD tool for Postgresql.
+    - Requirement
+        - networkx
+        - sqlalchemy
