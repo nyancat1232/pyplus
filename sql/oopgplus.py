@@ -188,16 +188,16 @@ class TableStructure:
         return df_ret
     
     def _iter_read_without_foreign(self):
-        stmt_get_types_col=['column_name','data_type','domain_name']
         stmt_get_types = text(f'''
-        SELECT {stmt_get_types_col[0]},
-            {stmt_get_types_col[1]},
-            {stmt_get_types_col[2]}
+        SELECT column_name,
+            data_type,
+            domain_name
         FROM information_schema.columns
-        WHERE table_schema = :schema 
-            AND table_name = :table;
+        WHERE table_schema = '{self.schema_name}'
+            AND table_name = '{self.table_name}';
         ''')
-        df_types = self._execute_to_pandas(stmt_get_types,stmt_get_types_col)
+        with self.engine.connect() as conn:
+            df_types = pd.read_sql_query(sql=stmt_get_types,con=conn)
         df_types=df_types.set_index('column_name')
         yield df_types.copy(), 'get types'
 
