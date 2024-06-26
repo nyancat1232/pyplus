@@ -188,12 +188,11 @@ class TableStructure:
         return df_ret
     
     def _iter_read_without_foreign(self):
-        stmt_get_types_col=['column_name','data_type','udt_name','domain_name']
+        stmt_get_types_col=['column_name','data_type','domain_name']
         stmt_get_types = text(f'''
         SELECT column_name AS {stmt_get_types_col[0]},
             data_type AS {stmt_get_types_col[1]},
-            udt_name AS {stmt_get_types_col[2]},
-            domain_name AS {stmt_get_types_col[3]}
+            domain_name AS {stmt_get_types_col[2]}
         FROM information_schema.columns
         WHERE table_schema = :schema 
             AND table_name = :table;
