@@ -21,17 +21,6 @@ SELECT attname as identity_column
        AND attidentity = 'a';
 ''')
 
-stmt_get_types_col=['column_name','data_type','udt_name','domain_name']
-stmt_get_types = text(f'''
-SELECT column_name AS {stmt_get_types_col[0]},
-       data_type AS {stmt_get_types_col[1]},
-       udt_name AS {stmt_get_types_col[2]},
-       domain_name AS {stmt_get_types_col[3]}
-  FROM information_schema.columns
- WHERE table_schema = :schema 
-       AND table_name = :table;
-''')
-
 stmt_foreign_col=['current_column_name','upper_schema','upper_table']
 stmt_foreign = text(f'''
 SELECT KCU.column_name AS {stmt_foreign_col[0]},
@@ -199,6 +188,16 @@ class TableStructure:
         return df_ret
     
     def _iter_read_without_foreign(self):
+        stmt_get_types_col=['column_name','data_type','udt_name','domain_name']
+        stmt_get_types = text(f'''
+        SELECT column_name AS {stmt_get_types_col[0]},
+            data_type AS {stmt_get_types_col[1]},
+            udt_name AS {stmt_get_types_col[2]},
+            domain_name AS {stmt_get_types_col[3]}
+        FROM information_schema.columns
+        WHERE table_schema = :schema 
+            AND table_name = :table;
+        ''')
         df_types = self._execute_to_pandas(stmt_get_types,stmt_get_types_col)
         df_types=df_types.set_index('column_name')
         yield df_types.copy(), 'get types'
