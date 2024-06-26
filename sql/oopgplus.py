@@ -191,7 +191,10 @@ class TableStructure:
         stmt_get_types = text(f'''
         SELECT column_name,
             data_type,
-            domain_name
+            CASE 
+                WHEN domain_name IS NOT NULL THEN domain_name
+                ELSE data_type
+            END AS display_type
         FROM information_schema.columns
         WHERE table_schema = '{self.schema_name}'
             AND table_name = '{self.table_name}';
