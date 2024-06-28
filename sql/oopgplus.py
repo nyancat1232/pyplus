@@ -308,7 +308,6 @@ class TableStructure:
         return ret
         
     def _get_local_foreign_id(self,row,column)->int:
-        warn('_get_local_foreign_id(row,column) is deprecated. Use get_foreign_tables() and get_local_val_to_id(column) instead.')
         '''
         get a local foreign id of expanded dataframe.
         
