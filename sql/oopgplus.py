@@ -215,9 +215,10 @@ class TableStructure:
         df_content = df_content.set_index(column_identity)
         yield df_content.copy(), 'read without foreign'
     def get_default_value(self):
-        df_ret = self._execute_to_pandas(stmt_default,stmt_default_col)
-        df_ret = df_ret.set_index('column_name')
-        return df_ret        
+        df_ret_new:pd.DataFrame = bp.select_yielder(self._iter_read_without_foreign(), 'get types')
+        df_ret_new = df_ret_new.dropna(subset='column_default')
+        ser_ret_new = df_ret_new['column_default']
+        return ser_ret_new        
     def get_types(self)->pd.DataFrame:
         return bp.select_yielder(self._iter_read_without_foreign(), 'get types')
     def read(self,ascending=False,columns:list[str]|None=None)->pd.DataFrame:
