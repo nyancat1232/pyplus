@@ -218,6 +218,15 @@ class TableStructure:
         df_ret = self._execute_to_pandas(stmt_default,stmt_default_col)
         df_ret = df_ret.set_index('column_name')
         return df_ret        
+    def get_types(self)->pd.DataFrame:
+        return bp.select_yielder(self._iter_read_without_foreign(), 'get types')
+    def read(self,ascending=False,columns:list[str]|None=None)->pd.DataFrame:
+        df_content = bp.select_yielder(self._iter_read_without_foreign(), 'read without foreign')
+        df_rwof = df_content.sort_index(ascending=ascending)
+        df_res = df_rwof
+        if columns is not None:
+            df_res = df_res[columns]
+        return df_res.copy()
 
 
     def _iter_read(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
@@ -277,14 +286,6 @@ class TableStructure:
         for col in col_sub:
             df_address[col] = df_address[col_sub[col]]
         yield df_address.copy(), 'addresses'
- 
-    def read(self,ascending=False,columns:list[str]|None=None)->pd.DataFrame:
-        df_content = bp.select_yielder(self._iter_read_without_foreign(), 'read without foreign')
-        df_rwof = df_content.sort_index(ascending=ascending)
-        df_res = df_rwof
-        if columns is not None:
-            df_res = df_res[columns]
-        return df_res.copy()
     
     def read_expand(self,ascending=False,remove_original_id=False,columns:list[str]|None=None)->pd.DataFrame:
         df_res = bp.select_yielder(self._iter_read(ascending,remove_original_id=remove_original_id,columns=columns),
@@ -292,10 +293,7 @@ class TableStructure:
         if columns is not None:
             df_res = df_res[columns]
         return df_res.copy()
-        
-    def get_types(self)->pd.DataFrame:
-        return bp.select_yielder(self._iter_read_without_foreign(), 'get types')
-    
+
     def get_types_expanded(self)->pd.DataFrame:
         return bp.select_yielder(self._iter_read(),'get types with foreign')
     
