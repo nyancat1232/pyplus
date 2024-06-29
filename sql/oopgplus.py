@@ -190,7 +190,8 @@ class TableStructure:
             CASE 
                 WHEN domain_name IS NOT NULL THEN domain_name
                 ELSE data_type
-            END AS display_type
+            END AS display_type,
+            is_generated
         FROM information_schema.columns
         WHERE table_schema = '{self.schema_name}'
             AND table_name = '{self.table_name}';
