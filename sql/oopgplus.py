@@ -181,15 +181,11 @@ class TableStructure:
             return True
         else:
             return False
-
-    def get_default_value(self):
-        df_ret = self._execute_to_pandas(stmt_default,stmt_default_col)
-        df_ret = df_ret.set_index('column_name')
-        return df_ret
     
     def _iter_read_without_foreign(self):
         stmt_get_types = text(f'''
         SELECT column_name,
+            column_default,
             data_type,
             CASE 
                 WHEN domain_name IS NOT NULL THEN domain_name
@@ -218,6 +214,10 @@ class TableStructure:
         df_content = df_content.astype(conv_type)
         df_content = df_content.set_index(column_identity)
         yield df_content.copy(), 'read without foreign'
+    def get_default_value(self):
+        df_ret = self._execute_to_pandas(stmt_default,stmt_default_col)
+        df_ret = df_ret.set_index('column_name')
+        return df_ret        
 
 
     def _iter_read(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
