@@ -45,3 +45,5 @@ def empty_records(df:pd.DataFrame)->pd.DataFrame:
     df_ret = df.copy()
     df_ret = df_ret.drop(df_ret.index)
     return df_ret
+
+filter_between = lambda sr,start,end:(sr>start) & (sr<end)
