@@ -90,7 +90,7 @@ def _convert_pgsql_type_to_pandas_type(pgtype:str,precision:Literal['ns']='ns',
         case 'double precision':
             return pd.Float64Dtype()
         case 'date':
-            return 'object'
+            return f'datetime64[{precision}]'
         case 'timestamp without time zone':
             return f'datetime64[{precision}]'
         case 'timestamp with time zone':
