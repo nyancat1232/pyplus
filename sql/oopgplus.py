@@ -61,7 +61,10 @@ def _conversion_Sql_value(val:None|int|np.integer|float|np.floating|str|date|pd.
             return f"'{_apply_escaping(val)}'"
         case pd.Timestamp():
             if val.strftime('%z') != '+0000':
-                raise NotImplementedError('Not UTC timezone.')
+                if len(val.strftime('%z'))==0:
+                    return f"'{val.strftime('%Y-%m-%d %H:%M:%S')}'"
+                else:
+                    raise NotImplementedError('Not UTC timezone.')
             return f"'{val.strftime('%Y-%m-%d %H:%M:%S')}'"
         case date():
             if val is not pd.NaT:
