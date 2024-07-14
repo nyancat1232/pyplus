@@ -119,7 +119,6 @@ def write_columns(*positional_data,**keyword_data):
     x3   x4      w3      w4
 
     '''
-    warn('write_columns is deprecated. Use TabsPlus instead')
     if len(positional_data)+len(keyword_data)<1:
         st.write('No arguments')
         return
