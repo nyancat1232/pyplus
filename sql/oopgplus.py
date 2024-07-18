@@ -330,16 +330,6 @@ class TableStructure:
         df = bp.select_yielder(self._iter_read(),'addresses')
 
         return df.loc[row,column]
-
-    #Update
-    def execute_sql_write(self,sql):
-        warn("execute_sql_write is deprecated.",category=DeprecationWarning)
-        with self.engine.connect() as conn:
-            conn.execute(sql)
-            conn.commit()
-            
-        
-        return self.read()
     
     def change_column_name(self,**kwarg):
         cp = kwarg.copy()
