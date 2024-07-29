@@ -455,6 +455,14 @@ class TableStructure:
         with self.engine.connect() as conn:
             conn.execute(stmt)
             conn.commit()
+    
+    #delete
+    def delete_column(self, column:str):
+        stmt=text(f'''ALTER TABLE IF EXISTS {self.schema_name}.{self.table_name}
+        DROP COLUMN IF EXISTS {column};''')
+        with self.engine.connect() as conn:
+            conn.execute(stmt)
+            conn.commit()
 
 
     
