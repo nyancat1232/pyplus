@@ -464,6 +464,13 @@ class TableStructure:
             conn.execute(stmt)
             conn.commit()
 
+    def delete_row(self,row:int):
+        stmt=text(f'''DELETE FROM {self.schema_name}.{self.table_name}
+                  WHERE {self.column_identity[0]}={row};
+                  ''')
+        with self.engine.connect() as conn:
+            conn.execute(stmt)
+            conn.commit()
 
     
 def get_table_list(engine:sqlalchemy.Engine):
