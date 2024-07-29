@@ -331,6 +331,7 @@ class TableStructure:
 
         return df.loc[row,column]
     
+    #upload
     def change_column_name(self,**kwarg):
         cp = kwarg.copy()
         with self.engine.connect() as conn:
