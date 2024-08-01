@@ -76,22 +76,23 @@ class TabsPlus:
                  layout:Literal['tab','column','popover']='tab',hide_titles=True):
         tab_information={tab_str:ind for ind,tab_str in enumerate(titles)}
         ret_list=[]
-        match layout:
-            case 'tab':
-                ret_list = st.tabs(titles)
-            case 'column':
-                ret_list = st.columns(len(titles))
-                if hide_titles==False:
-                    for col,tab_name in zip(ret_list,titles):
-                        col.subheader(tab_name)
-            case 'popover':
-                cols = st.columns(len(titles))
-                for col,tab_name in zip(cols,titles):
-                    ret_list.append(col.popover(tab_name))
-            case _:
-                raise NotImplementedError(f'no connection {layout}')
-        self._streamlit_display_index_num = ret_list
-        self._strs_to_num = tab_information
+        if len(titles)>0:
+            match layout:
+                case 'tab':
+                    ret_list = st.tabs(titles)
+                case 'column':
+                    ret_list = st.columns(len(titles))
+                    if hide_titles==False:
+                        for col,tab_name in zip(ret_list,titles):
+                            col.subheader(tab_name)
+                case 'popover':
+                    cols = st.columns(len(titles))
+                    for col,tab_name in zip(cols,titles):
+                        ret_list.append(col.popover(tab_name))
+                case _:
+                    raise NotImplementedError(f'no connection {layout}')
+            self._streamlit_display_index_num = ret_list
+            self._strs_to_num = tab_information
 
     def __getitem__(self,item):
         return self._streamlit_display_index_num[self._strs_to_num[item]]
