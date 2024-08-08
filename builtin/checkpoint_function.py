@@ -16,7 +16,7 @@ class CheckPointFunction:
     >>> bp.CheckPointFunction(itertest,{'first':10}).second(1)
     12
     '''
-    def __init__(self,func:Generator[tuple[Any,str],Any,None],sender_value:dict[str,Any]=dict()) -> None:
+    def __init__(self,func:Generator[tuple[Any,str],Any,Any],sender_value:dict[str,Any]=dict()) -> None:
         self.func=func
         self.sender_value=sender_value
     def __getattr__(self,checkpoint:str):
@@ -30,3 +30,12 @@ class CheckPointFunction:
                 elif tup[1] in self.sender_value:
                     sender_memory = self.sender_value[tup[1]]
         return new_func
+    def __call__(self, *args: Any, **kwds: Any) -> Any:
+        gen = self.func(*args,**kwds)
+        sender_memory = None
+        try:
+            while tup := gen.send(sender_memory):
+                if tup[1] in self.sender_value:
+                    sender_memory = self.sender_value[tup[1]]
+        except StopIteration as ret:
+            return ret.value
