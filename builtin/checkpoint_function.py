@@ -39,3 +39,26 @@ class CheckPointFunction:
                     sender_memory = self.sender_value[tup[1]]
         except StopIteration as ret:
             return ret.value
+
+def dec_checkpoint_function(sender_value:dict[str,Any]):
+    '''
+    Decorator for a function
+    
+    Parameters
+    ----------
+    sender_value : dict[str,Any]
+        Apply a value when checkpoint meets.
+    
+    Examples
+    --------
+    >>> @dec_checkpoint_function({'first':10})
+    >>> def itertest(val):
+    >>>     val +=1
+    >>>     received = yield val, 'first'
+    >>>     if received is not None:
+    >>>         val += received
+    >>>     yield val, 'second'
+    >>> itertest.second(1)
+    12
+    '''
+    return lambda func:CheckPointFunction(func,sender_value)
