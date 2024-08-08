@@ -202,7 +202,7 @@ class TableStructure:
         with self.engine.connect() as conn:
             df_types = pd.read_sql_query(sql=stmt_get_types,con=conn)
         df_types=df_types.set_index('column_name')
-        yield df_types.copy(), 'get types'
+        yield df_types.copy(), 'get_types'
 
         sql_content = text(f"SELECT * FROM {self.schema_name}.{self.table_name}")
         with self.engine.connect() as conn:
@@ -217,16 +217,16 @@ class TableStructure:
         df_content = df_content.reset_index()
         df_content = df_content.astype(conv_type)
         df_content = df_content.set_index(column_identity)
-        yield df_content.copy(), 'read without foreign'
+        yield df_content.copy(), 'read_without_foreign'
     def get_default_value(self):
-        df_ret_new:pd.DataFrame = bp.select_yielder(self._iter_read_without_foreign(), 'get types')
+        df_ret_new:pd.DataFrame = bp.select_yielder(self._iter_read_without_foreign(), 'get_types')
         df_ret_new = df_ret_new.dropna(subset='column_default')
         ser_ret_new = df_ret_new['column_default']
         return ser_ret_new        
     def get_types(self)->pd.DataFrame:
-        return bp.select_yielder(self._iter_read_without_foreign(), 'get types')
+        return bp.select_yielder(self._iter_read_without_foreign(), 'get_types')
     def read(self,ascending=False,columns:list[str]|None=None)->pd.DataFrame:
-        df_content = bp.select_yielder(self._iter_read_without_foreign(), 'read without foreign')
+        df_content = bp.select_yielder(self._iter_read_without_foreign(), 'read_without_foreign')
         df_rwof = df_content.sort_index(ascending=ascending)
         df_res = df_rwof
         if columns is not None:
@@ -235,8 +235,8 @@ class TableStructure:
 
 
     def _iter_read(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
-        df_types = bp.select_yielder(self._iter_read_without_foreign(), 'get types')
-        df_content = bp.select_yielder(self._iter_read_without_foreign(), 'read without foreign')
+        df_types = bp.select_yielder(self._iter_read_without_foreign(), 'get_types')
+        df_content = bp.select_yielder(self._iter_read_without_foreign(), 'read_without_foreign')
 
         foreign_tables_ts = self.get_foreign_tables()
         for col_local_foreign in foreign_tables_ts:
@@ -281,10 +281,10 @@ class TableStructure:
                             current_selfref=f'{current_selfref}.{col_local_foreign}'
                         else:
                             del df_content[current_selfref]
-        yield df_types.copy(), 'get types with foreign'
+        yield df_types.copy(), 'get_types_with_foreign'
 
         df_rwf = df_content.sort_index(ascending=ascending)
-        yield df_rwf.copy(), 'read with foreign'
+        yield df_rwf.copy(), 'read_with_foreign'
 
         df_address=df_content.copy()
         col_sub = {col:col[:col.find('.')] for col in df_rwf.columns if col.find('.')!=-1}
@@ -294,16 +294,16 @@ class TableStructure:
     
     def read_expand(self,ascending=False,remove_original_id=False,columns:list[str]|None=None)->pd.DataFrame:
         df_res = bp.select_yielder(self._iter_read(ascending,remove_original_id=remove_original_id,columns=columns),
-                                 'read with foreign')
+                                 'read_with_foreign')
         if columns is not None:
             df_res = df_res[columns]
         return df_res.copy()
 
     def get_types_expanded(self)->pd.DataFrame:
-        return bp.select_yielder(self._iter_read(),'get types with foreign')
+        return bp.select_yielder(self._iter_read(),'get_types_with_foreign')
     
     def get_local_val_to_id(self,column:str):
-        convert_table:pd.DataFrame = bp.select_yielder(self._iter_read_without_foreign(), 'read without foreign')
+        convert_table:pd.DataFrame = bp.select_yielder(self._iter_read_without_foreign(), 'read_without_foreign')
         ser_filtered = convert_table[column].dropna()
         ser_filtered.index = ser_filtered.index.astype('Int64')
         ret = ser_filtered.to_dict()
