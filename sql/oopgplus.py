@@ -166,7 +166,7 @@ class TableStructure:
                for val in dd}
         yield ret.copy(), 'get_foreign_tables'
     def get_foreign_tables(self)->dict[str,Self]:
-        return bp.select_yielder(self._iter_foreign_tables(),'get_foreign_tables')
+        return bp.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables()
     
     def check_selfref_table(self,ts:Self)->bool:
         match (ts.schema_name,ts.table_name):
@@ -219,14 +219,14 @@ class TableStructure:
         df_content = df_content.set_index(column_identity)
         yield df_content.copy(), 'read_without_foreign'
     def get_default_value(self):
-        df_ret_new:pd.DataFrame = bp.select_yielder(self._iter_read_without_foreign(), 'get_types')
+        df_ret_new:pd.DataFrame = bp.CheckPointFunction(self._iter_read_without_foreign).get_types()
         df_ret_new = df_ret_new.dropna(subset='column_default')
         ser_ret_new = df_ret_new['column_default']
         return ser_ret_new        
     def get_types(self)->pd.DataFrame:
-        return bp.select_yielder(self._iter_read_without_foreign(), 'get_types')
+        return bp.CheckPointFunction(self._iter_read_without_foreign).get_types()
     def read(self,ascending=False,columns:list[str]|None=None)->pd.DataFrame:
-        df_content = bp.select_yielder(self._iter_read_without_foreign(), 'read_without_foreign')
+        df_content = bp.CheckPointFunction(self._iter_read_without_foreign).read_without_foreign()
         df_rwof = df_content.sort_index(ascending=ascending)
         df_res = df_rwof
         if columns is not None:
@@ -235,8 +235,8 @@ class TableStructure:
 
 
     def _iter_read(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
-        df_types = bp.select_yielder(self._iter_read_without_foreign(), 'get_types')
-        df_content = bp.select_yielder(self._iter_read_without_foreign(), 'read_without_foreign')
+        df_types = bp.CheckPointFunction(self._iter_read_without_foreign).get_types()
+        df_content = bp.CheckPointFunction(self._iter_read_without_foreign).read_without_foreign()
 
         foreign_tables_ts = self.get_foreign_tables()
         for col_local_foreign in foreign_tables_ts:
@@ -293,17 +293,16 @@ class TableStructure:
         yield df_address.copy(), 'addresses'
     
     def read_expand(self,ascending=False,remove_original_id=False,columns:list[str]|None=None)->pd.DataFrame:
-        df_res = bp.select_yielder(self._iter_read(ascending,remove_original_id=remove_original_id,columns=columns),
-                                 'read_with_foreign')
+        df_res = bp.CheckPointFunction(self._iter_read).read_with_foreign(ascending,remove_original_id=remove_original_id,columns=columns)
         if columns is not None:
             df_res = df_res[columns]
         return df_res.copy()
 
     def get_types_expanded(self)->pd.DataFrame:
-        return bp.select_yielder(self._iter_read(),'get_types_with_foreign')
+        return bp.CheckPointFunction(self._iter_read).get_types_with_foreign()
     
     def get_local_val_to_id(self,column:str):
-        convert_table:pd.DataFrame = bp.select_yielder(self._iter_read_without_foreign(), 'read_without_foreign')
+        convert_table:pd.DataFrame = bp.CheckPointFunction(self._iter_read_without_foreign).read_without_foreign()
         ser_filtered = convert_table[column].dropna()
         ser_filtered.index = ser_filtered.index.astype('Int64')
         ret = ser_filtered.to_dict()
@@ -327,7 +326,7 @@ class TableStructure:
             foreign id.
         
         '''
-        df = bp.select_yielder(self._iter_read(),'addresses')
+        df = bp.CheckPointFunction(self._iter_read).addresses()
 
         return df.loc[row,column]
     
