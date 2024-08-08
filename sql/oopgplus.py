@@ -442,11 +442,11 @@ class TableStructure:
     def upload_append(self,**kwarg:Any):
         return self.upload_appends(kwarg)
 
-    def connect_foreign_column(self,ts:Self,col:str):
+    def connect_foreign_column(self,ts_foreign:Self,local_col:str):
         stmt=text(f'''
         ALTER TABLE IF EXISTS {self.schema_name}.{self.table_name}
-        ADD FOREIGN KEY ({col})
-        REFERENCES {ts.schema_name}.{ts.table_name} ({ts.column_identity[0]}) MATCH SIMPLE
+        ADD FOREIGN KEY ({local_col})
+        REFERENCES {ts_foreign.schema_name}.{ts_foreign.table_name} ({ts_foreign.column_identity[0]}) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID;
