@@ -1,4 +1,5 @@
 from typing import Generator,Any,Literal,Iterable,Callable
+from warnings import warn
 import itertools as its
 
 def select_yielder(gen:Generator[tuple[Any,str],Any,None],begin_msg:str,
@@ -49,7 +50,7 @@ def select_yielder(gen:Generator[tuple[Any,str],Any,None],begin_msg:str,
     >>>     def second_method(self):
     >>>         return bp.select_yielder(self._private_method(),'second return') 
     '''
-    
+    warn('select_yielder v1 will be deprecated')
     for ret,current_msg in gen:
         if current_msg == begin_msg:
             match rettype:
@@ -61,6 +62,7 @@ def select_yielder(gen:Generator[tuple[Any,str],Any,None],begin_msg:str,
                     raise NotImplementedError(f'No {rettype}')
 
 def pass_sender(gen:Generator[tuple[Any,str],Any,None],**passer:Any)->Generator[tuple[Any,str],Any,None]:
+    warn('pass_sender v1 will be deprecated')
     msg=None
     try:
         while True:
@@ -73,6 +75,7 @@ def pass_sender(gen:Generator[tuple[Any,str],Any,None],**passer:Any)->Generator[
         pass
 
 def pass_senders_parallel(func:Callable,**passer:Iterable[Any])->Generator[tuple[Any,str],Any,None]:
+    warn('pass_senders_parallel v1 will be deprecated')
     passer_iterable_check=(isinstance(passer[key],Iterable) for key in passer)
     if not all(passer_iterable_check):
         raise TypeError('All must be iterable')
