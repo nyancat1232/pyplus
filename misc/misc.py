@@ -92,3 +92,42 @@ def col_to_colinf(l:list[dict])->list[dict]:
 def get_column_address(col_name:str)->dict:
     warn('get_column_address() will be deprecated',category=DeprecationWarning)
     return {'address':col_name.split(".")[:-1], 'column_name':col_name.split(".")[-1]}
+
+
+def convert_strings_to_double_capital(sentence:str):
+    '''
+    Convert a sentence to a sentence 𝕝𝕚𝕜𝕖 𝕥𝕙𝕚𝕤
+    
+    Parameters
+    ----------
+    sentence : str
+        A sentence.
+    
+    Returns
+    --------
+    str
+        𝕋𝕙𝕖 𝕤𝕖𝕟𝕥𝕖𝕟𝕔𝕖 𝕨𝕚𝕝𝕝 𝕓𝕖 𝕝𝕚𝕜𝕖 𝕥𝕙𝕚𝕤.
+    
+    Examples
+    --------
+    Converting 'hello world!'
+    >>> convert_strings_to_double_capital('hello world!')
+    𝕙𝕖𝕝𝕝𝕠 𝕨𝕠𝕣𝕝𝕕!
+    '''
+    def convert_one_char_to_double_capital(ch:str):
+        res = ch
+        if ch.isalpha():
+            if ch.isupper():
+                difference=ord('𝕏')-ord('X')
+            else:
+                difference=ord('𝕔')-ord('c')
+        else:
+            difference=0
+        
+        add_capital=lambda ch:ch+difference
+        res = ord(res)
+        res = add_capital(res)
+        res = chr(res)
+        
+        return res
+    return "".join([convert_one_char_to_double_capital(ch) for ch in sentence])
