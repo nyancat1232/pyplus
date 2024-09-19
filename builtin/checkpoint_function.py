@@ -46,5 +46,5 @@ class CheckPointFunctionV2:
         return CheckPointFunctionContexted(self.func,checkpoint)
     
 
-def dec_checkpoint_function_v2(func:Generator[tuple[Any,str],Any,Any]):
+def CheckPointFunctionDecoration(func:Generator[tuple[Any,str],Any,Any]):
     return CheckPointFunctionV2(func)
