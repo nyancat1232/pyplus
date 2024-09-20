@@ -293,7 +293,7 @@ class TableStructure:
         yield df_address.copy(), 'addresses'
     
     def read_expand(self,ascending=False,remove_original_id=False,columns:list[str]|None=None)->pd.DataFrame:
-        df_res = bp.CheckPointFunction(self._iter_read).read_with_foreign(ascending,remove_original_id=remove_original_id,columns=columns)
+        df_res = bp.CheckPointFunction(self._iter_read)(ascending,remove_original_id=remove_original_id,columns=columns).read_with_foreign()
         if columns is not None:
             df_res = df_res[columns]
         return df_res.copy()
