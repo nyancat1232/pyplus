@@ -59,6 +59,18 @@ class CheckPointFunctionV2:
                         return tup[0]
                     elif tup[1] in sender_args:
                         sender_memory = sender_args[tup[1]]
+            def __iter__(self):
+                self._gen = self.func()
+                self._stop_iter = False
+                return self
+            def __next__(self):
+                while tup := next(self._gen):
+                    if self._stop_iter:
+                        raise StopIteration
+                    if tup[1] == self.checkpoint:
+                        self._stop_iter = True
+                    return tup[0]
+                    
         return CheckPointFunctionContexted(self.func,checkpoint)
     
 
