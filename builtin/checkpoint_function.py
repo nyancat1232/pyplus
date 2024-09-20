@@ -27,6 +27,22 @@ class CheckPointFunctionV2:
                 self.checkpoint = checkpoint
 
             def __call__(self, *args: Any, **kwds: Any) -> Any:
+                '''
+                Executes until checkpoint reaches.
+                
+                Parameters
+                ----------
+                *args : Any
+                    Positional arguments
+                **kwds : Any
+                    keyword arguments including value for sender.
+                    Value will be sended when this function reaches the keyword.
+                
+                Returns
+                --------
+                Any
+                    Return value when reaches the end of checkpoint.
+                '''
                 params_func = inspect.signature(self.func).parameters
                 param_kwds = set(kwds) & set(params_func)
                 param_args = {key:kwds[key] for key in param_kwds}
