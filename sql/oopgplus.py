@@ -89,8 +89,6 @@ class TableStructure:
     table_name : str
     engine : sqlalchemy.Engine
 
-    column_identity : str
-    
     def _get_default_parameter_stmt(self):
         return {"schema":self.schema_name,"table":self.table_name}
 
@@ -99,10 +97,6 @@ class TableStructure:
         self.schema_name = schema_name
         self.table_name = table_name
         self.engine = engine
-
-        with self.engine.connect() as conn:
-            result = conn.execute(stmt_find_identity,self._get_default_parameter_stmt())
-            self.column_identity = [row.identity_column for row in result]
 
     def __repr__(self):
         return f"Table_structure. \nSchema is {self.schema_name}\nTable is {self.table_name}"
@@ -160,6 +154,11 @@ class TableStructure:
             return False
     
     def _iter_read(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
+        with self.engine.connect() as conn:
+            result = conn.execute(stmt_find_identity,self._get_default_parameter_stmt())
+            column_identity = [row.identity_column for row in result]
+        yield column_identity, 'get_identity'
+
         stmt_get_types = text(f'''
         SELECT column_name,
             column_default,
@@ -181,8 +180,7 @@ class TableStructure:
         sql_content = text(f"SELECT * FROM {self.schema_name}.{self.table_name}")
         with self.engine.connect() as conn:
             df_content = pd.read_sql_query(sql=sql_content,con=conn)
-
-            df_content=df_content.set_index(self.column_identity)
+            df_content=df_content.set_index(column_identity)
 
         column_identity = df_content.index.name
         def _convert_pgsql_type_to_pandas_type(pgtype:str,precision:Literal['ns']='ns',
@@ -272,6 +270,8 @@ class TableStructure:
         for col in col_sub:
             df_address[col] = df_address[col_sub[col]]
         yield df_address.copy(), 'addresses'
+    def get_identity(self):
+        return bp.CheckPointFunction(self._iter_read).get_identity() 
         
     def get_default_value(self):
         df_ret_new:pd.DataFrame = bp.CheckPointFunction(self._iter_read).get_types()
@@ -337,6 +337,7 @@ class TableStructure:
         return self.read()
 
     def upload(self,id_row:int,**kwarg):
+        column_identity = bp.CheckPointFunction(self._iter_read).get_identity()
         cp = kwarg.copy()
         for column in kwarg:
             if self.check_if_not_local_column(column):
@@ -377,7 +378,7 @@ class TableStructure:
         sql = text(f"""
         UPDATE {self.schema_name}.{self.table_name}
         SET {original}
-        WHERE {self.column_identity[0]} = {id_row};
+        WHERE {column_identity[0]} = {id_row};
         """)
         
         with self.engine.connect() as conn:
@@ -442,7 +443,7 @@ class TableStructure:
         stmt=text(f'''
         ALTER TABLE IF EXISTS {self.schema_name}.{self.table_name}
         ADD FOREIGN KEY ({local_col})
-        REFERENCES {ts_foreign.schema_name}.{ts_foreign.table_name} ({ts_foreign.column_identity[0]}) MATCH SIMPLE
+        REFERENCES {ts_foreign.schema_name}.{ts_foreign.table_name} ({ts_foreign.get_identity[0]}) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID;
@@ -460,8 +461,9 @@ class TableStructure:
             conn.commit()
 
     def delete_row(self,row:int):
+        column_identity = bp.CheckPointFunction(self._iter_read).get_identity()
         stmt=text(f'''DELETE FROM {self.schema_name}.{self.table_name}
-                  WHERE {self.column_identity[0]}={row};
+                  WHERE {column_identity[0]}={row};
                   ''')
         with self.engine.connect() as conn:
             conn.execute(stmt)
