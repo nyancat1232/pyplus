@@ -180,7 +180,7 @@ class TableStructure:
             return False
         current_column = column.split(".")[0]
 
-        if current_column in self.get_foreign_tables():
+        if current_column in bp.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables():
             return True
         else:
             return False
@@ -219,7 +219,7 @@ class TableStructure:
         df_content = df_content.set_index(column_identity)
         yield df_content.copy(), 'read_without_foreign'
 
-        foreign_tables_ts = self.get_foreign_tables()
+        foreign_tables_ts =bp.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables() 
         for col_local_foreign in foreign_tables_ts:
             if not self.check_selfref_table(foreign_tables_ts[col_local_foreign]):
                 ts = foreign_tables_ts[col_local_foreign]
@@ -346,7 +346,7 @@ class TableStructure:
                 foreign_upload_dict = {foreign_column:foreign_val}
 
                 local_foreign_id = self._get_local_foreign_id(id_row,column)
-                foreign_ts=self.get_foreign_tables()[local_column]
+                foreign_ts=bp.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables()[local_column]
 
                 if local_foreign_id is pd.NA:
                     foreign_index = set(foreign_ts.read().index.to_list())
