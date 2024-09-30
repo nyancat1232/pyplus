@@ -136,13 +136,6 @@ class TableStructure:
     def get_foreign_tables(self)->dict[str,Self]:
         return bp.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables()
     
-    def check_selfref_table(self,ts:Self)->bool:
-        match (ts.schema_name,ts.table_name):
-            case (self.schema_name,self.table_name):
-                return True
-            case _:
-                return False
-        
     def check_if_not_local_column(self,column:str)->bool:
         if '.' not in column:
             return False
@@ -216,10 +209,17 @@ class TableStructure:
         df_content = df_content.astype(conv_type)
         df_content = df_content.set_index(column_identity)
         yield df_content.copy(), 'read_without_foreign'
-
+        
+        def check_selfref_table(ts:Self)->bool:
+            match (ts.schema_name,ts.table_name):
+                case (self.schema_name,self.table_name):
+                    return True
+                case _:
+                    return False
+        
         foreign_tables_ts =bp.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables() 
         for col_local_foreign in foreign_tables_ts:
-            if not self.check_selfref_table(foreign_tables_ts[col_local_foreign]):
+            if not check_selfref_table(foreign_tables_ts[col_local_foreign]):
                 ts = foreign_tables_ts[col_local_foreign]
                 df_ftable_types=ts.get_types_expanded()
                 row_changer={row:f'{col_local_foreign}.{row}' for row in df_ftable_types.index.to_list()}
