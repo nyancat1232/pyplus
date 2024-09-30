@@ -185,15 +185,6 @@ class TableStructure:
         else:
             return False
     
-    def _iter_read_without_foreign(self):
-        df_temp = bp.CheckPointFunction(self._iter_read).get_types()
-        yield df_temp.copy(), 'get_types'
-        df_temp = bp.CheckPointFunction(self._iter_read).read_without_foreign()
-        yield df_temp.copy(), 'read_without_foreign'
-
-
-    
-
     def _iter_read(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
         stmt_get_types = text(f'''
         SELECT column_name,
@@ -283,14 +274,14 @@ class TableStructure:
         yield df_address.copy(), 'addresses'
         
     def get_default_value(self):
-        df_ret_new:pd.DataFrame = bp.CheckPointFunction(self._iter_read_without_foreign).get_types()
+        df_ret_new:pd.DataFrame = bp.CheckPointFunction(self._iter_read).get_types()
         df_ret_new = df_ret_new.dropna(subset='column_default')
         ser_ret_new = df_ret_new['column_default']
         return ser_ret_new        
     def get_types(self)->pd.DataFrame:
-        return bp.CheckPointFunction(self._iter_read_without_foreign).get_types()
+        return bp.CheckPointFunction(self._iter_read).get_types()
     def read(self,ascending=False,columns:list[str]|None=None)->pd.DataFrame:
-        df_content = bp.CheckPointFunction(self._iter_read_without_foreign).read_without_foreign()
+        df_content = bp.CheckPointFunction(self._iter_read).read_without_foreign()
         df_rwof = df_content.sort_index(ascending=ascending)
         df_res = df_rwof
         if columns is not None:
@@ -307,7 +298,7 @@ class TableStructure:
         return bp.CheckPointFunction(self._iter_read).get_types_with_foreign()
     
     def get_local_val_to_id(self,column:str):
-        convert_table:pd.DataFrame = bp.CheckPointFunction(self._iter_read_without_foreign).read_without_foreign()
+        convert_table:pd.DataFrame = bp.CheckPointFunction(self._iter_read).read_without_foreign()
         ser_filtered = convert_table[column].dropna()
         ser_filtered.index = ser_filtered.index.astype('Int64')
         ret = ser_filtered.to_dict()
