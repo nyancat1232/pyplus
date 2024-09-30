@@ -78,32 +78,6 @@ def _conversion_Sql_value(val:None|int|np.integer|float|np.floating|str|date|pd.
         case _:
             raise NotImplementedError(type(val))
 
-def _convert_pgsql_type_to_pandas_type(pgtype:str,precision:Literal['ns']='ns',
-                                       tz:str|int|tzinfo|None=ZoneInfo('UTC')):
-    #https://pandas.pydata.org/pandas-docs/stable/user_guide/basics.html#basics-dtypes
-    match pgtype:
-        case 'bigint':
-            return pd.Int64Dtype() #Int vs int
-        case 'integer':
-            return pd.Int32Dtype() #Int vs int
-        case 'boolean':
-            return pd.BooleanDtype()
-        case 'text':
-            return pd.StringDtype()
-        case 'double precision':
-            return pd.Float64Dtype()
-        case 'date':
-            return f'datetime64[{precision}]'
-        case 'timestamp without time zone':
-            return f'datetime64[{precision}]'
-        case 'timestamp with time zone':
-            return pd.DatetimeTZDtype(precision,tz=tz)
-        case 'interval':
-            return 'str'
-        case 'ARRAY':
-            return 'object'
-        case _:
-            raise NotImplementedError(pgtype)
 
 _reserved_columns = ['id']
 
@@ -211,6 +185,32 @@ class TableStructure:
             df_content=df_content.set_index(self.column_identity)
 
         column_identity = df_content.index.name
+        def _convert_pgsql_type_to_pandas_type(pgtype:str,precision:Literal['ns']='ns',
+                                            tz:str|int|tzinfo|None=ZoneInfo('UTC')):
+            #https://pandas.pydata.org/pandas-docs/stable/user_guide/basics.html#basics-dtypes
+            match pgtype:
+                case 'bigint':
+                    return pd.Int64Dtype() #Int vs int
+                case 'integer':
+                    return pd.Int32Dtype() #Int vs int
+                case 'boolean':
+                    return pd.BooleanDtype()
+                case 'text':
+                    return pd.StringDtype()
+                case 'double precision':
+                    return pd.Float64Dtype()
+                case 'date':
+                    return f'datetime64[{precision}]'
+                case 'timestamp without time zone':
+                    return f'datetime64[{precision}]'
+                case 'timestamp with time zone':
+                    return pd.DatetimeTZDtype(precision,tz=tz)
+                case 'interval':
+                    return 'str'
+                case 'ARRAY':
+                    return 'object'
+                case _:
+                    raise NotImplementedError(pgtype)
 
         conv_type = {column_name:_convert_pgsql_type_to_pandas_type(df_types['data_type'][column_name]) for column_name 
                      in df_types.index}
