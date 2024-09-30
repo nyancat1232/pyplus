@@ -186,6 +186,15 @@ class TableStructure:
             return False
     
     def _iter_read_without_foreign(self):
+        df_temp = bp.CheckPointFunction(self._iter_read).get_types()
+        yield df_temp.copy(), 'get_types'
+        df_temp = bp.CheckPointFunction(self._iter_read).read_without_foreign()
+        yield df_temp.copy(), 'read_without_foreign'
+
+
+    
+
+    def _iter_read(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
         stmt_get_types = text(f'''
         SELECT column_name,
             column_default,
@@ -218,25 +227,6 @@ class TableStructure:
         df_content = df_content.astype(conv_type)
         df_content = df_content.set_index(column_identity)
         yield df_content.copy(), 'read_without_foreign'
-    def get_default_value(self):
-        df_ret_new:pd.DataFrame = bp.CheckPointFunction(self._iter_read_without_foreign).get_types()
-        df_ret_new = df_ret_new.dropna(subset='column_default')
-        ser_ret_new = df_ret_new['column_default']
-        return ser_ret_new        
-    def get_types(self)->pd.DataFrame:
-        return bp.CheckPointFunction(self._iter_read_without_foreign).get_types()
-    def read(self,ascending=False,columns:list[str]|None=None)->pd.DataFrame:
-        df_content = bp.CheckPointFunction(self._iter_read_without_foreign).read_without_foreign()
-        df_rwof = df_content.sort_index(ascending=ascending)
-        df_res = df_rwof
-        if columns is not None:
-            df_res = df_res[columns]
-        return df_res.copy()
-
-
-    def _iter_read(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
-        df_types = bp.CheckPointFunction(self._iter_read_without_foreign).get_types()
-        df_content = bp.CheckPointFunction(self._iter_read_without_foreign).read_without_foreign()
 
         foreign_tables_ts = self.get_foreign_tables()
         for col_local_foreign in foreign_tables_ts:
@@ -291,7 +281,22 @@ class TableStructure:
         for col in col_sub:
             df_address[col] = df_address[col_sub[col]]
         yield df_address.copy(), 'addresses'
-    
+        
+    def get_default_value(self):
+        df_ret_new:pd.DataFrame = bp.CheckPointFunction(self._iter_read_without_foreign).get_types()
+        df_ret_new = df_ret_new.dropna(subset='column_default')
+        ser_ret_new = df_ret_new['column_default']
+        return ser_ret_new        
+    def get_types(self)->pd.DataFrame:
+        return bp.CheckPointFunction(self._iter_read_without_foreign).get_types()
+    def read(self,ascending=False,columns:list[str]|None=None)->pd.DataFrame:
+        df_content = bp.CheckPointFunction(self._iter_read_without_foreign).read_without_foreign()
+        df_rwof = df_content.sort_index(ascending=ascending)
+        df_res = df_rwof
+        if columns is not None:
+            df_res = df_res[columns]
+        return df_res.copy()
+
     def read_expand(self,ascending=False,remove_original_id=False,columns:list[str]|None=None)->pd.DataFrame:
         df_res = bp.CheckPointFunction(self._iter_read)(ascending,remove_original_id=remove_original_id,columns=columns).read_with_foreign()
         if columns is not None:
