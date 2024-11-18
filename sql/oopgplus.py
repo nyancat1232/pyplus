@@ -99,7 +99,9 @@ class TableStructure:
         self.engine = engine
 
     def __repr__(self):
-        return f"Table_structure. \nSchema is {self.schema_name}\nTable is {self.table_name}"
+        ret = f"{self.schema_name}.{self.table_name}"
+        ret += repr(bp.CheckPointFunction(self._iter_read).read_with_foreign())
+        return ret
 
     #Creation
     def append_column(self,**type_dict):
