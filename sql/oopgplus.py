@@ -389,7 +389,12 @@ class TableStructure:
             
         
         return self.read()
-    
+
+    def upload_dataframe(self,df:pd.DataFrame):
+        dict_df = df.to_dict('index')
+        for row in dict_df:
+            self.upload(row,**dict_df[row])
+
     def upload_appends(self,*row:dict[str,Any]):
         '''
         Append rows
