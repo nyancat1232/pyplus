@@ -471,6 +471,7 @@ class TableStructure:
             conn.execute(stmt)
             conn.commit()
 
+Table = TableStructure
     
 def get_table_list(engine:sqlalchemy.Engine):
     '''
@@ -496,7 +497,6 @@ def get_table_list(engine:sqlalchemy.Engine):
     
         return ret
 
-Table = TableStructure
 
 class SchemaStructure:
     schema_name : str
