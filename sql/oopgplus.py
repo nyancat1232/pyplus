@@ -443,9 +443,13 @@ class TableStructure:
             conn.commit()
 
         return self.read()
-    def upload_append(self,**kwarg:Any):
-        return self.upload_appends(kwarg)
 
+    def append(self,**kwarg:Any):
+        return self.upload_appends(kwarg)
+    def upload_append(self, **kwarg: Any):
+        warn("The 'upload_append' method is deprecated, use 'append' instead.", DeprecationWarning, stacklevel=2)
+        return self.append(**kwarg)
+    
     def connect_foreign_column(self,ts_foreign:Self,local_col:str):
         stmt=text(f'''
         ALTER TABLE IF EXISTS {self.schema_name}.{self.table_name}
