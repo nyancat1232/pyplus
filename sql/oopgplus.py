@@ -5,7 +5,7 @@ from typing import Literal,Self,Any
 from datetime import date,tzinfo
 from zoneinfo import ZoneInfo
 import numpy as np
-import checkpoint as cp
+import checkpoint as chpo
 import networkx as nx
 from warnings import warn
 
@@ -100,7 +100,7 @@ class TableStructure:
 
     def __repr__(self):
         ret = f"{self.schema_name}.{self.table_name}"
-        ret += repr(cp.CheckPointFunction(self._iter_read).read_with_foreign())
+        ret += repr(chpo.CheckPointFunction(self._iter_read).read_with_foreign())
         return ret
 
     #Creation
@@ -136,14 +136,14 @@ class TableStructure:
                for val in dd}
         yield ret.copy(), 'get_foreign_tables'
     def get_foreign_tables(self)->dict[str,Self]:
-        return cp.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables()
+        return chpo.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables()
     
     def check_if_not_local_column(self,column:str)->bool:
         if '.' not in column:
             return False
         current_column = column.split(".")[0]
 
-        if current_column in cp.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables():
+        if current_column in chpo.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables():
             return True
         else:
             return False
@@ -219,7 +219,7 @@ class TableStructure:
                 case _:
                     return False
         
-        foreign_tables_ts =cp.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables() 
+        foreign_tables_ts =chpo.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables() 
         for col_local_foreign in foreign_tables_ts:
             if not check_selfref_table(foreign_tables_ts[col_local_foreign]):
                 ts = foreign_tables_ts[col_local_foreign]
@@ -273,17 +273,17 @@ class TableStructure:
             df_address[col] = df_address[col_sub[col]]
         yield df_address.copy(), 'addresses'
     def get_identity(self):
-        return cp.CheckPointFunction(self._iter_read).get_identity() 
+        return chpo.CheckPointFunction(self._iter_read).get_identity() 
         
     def get_default_value(self):
-        df_ret_new:pd.DataFrame = cp.CheckPointFunction(self._iter_read).get_types()
+        df_ret_new:pd.DataFrame = chpo.CheckPointFunction(self._iter_read).get_types()
         df_ret_new = df_ret_new.dropna(subset='column_default')
         ser_ret_new = df_ret_new['column_default']
         return ser_ret_new        
     def get_types(self)->pd.DataFrame:
-        return cp.CheckPointFunction(self._iter_read).get_types()
+        return chpo.CheckPointFunction(self._iter_read).get_types()
     def read(self,ascending=False,columns:list[str]|None=None)->pd.DataFrame:
-        df_content = cp.CheckPointFunction(self._iter_read).read_without_foreign()
+        df_content = chpo.CheckPointFunction(self._iter_read).read_without_foreign()
         df_rwof = df_content.sort_index(ascending=ascending)
         df_res = df_rwof
         if columns is not None:
@@ -291,16 +291,16 @@ class TableStructure:
         return df_res.copy()
 
     def read_expand(self,ascending=False,remove_original_id=False,columns:list[str]|None=None)->pd.DataFrame:
-        df_res = cp.CheckPointFunction(self._iter_read)(ascending,remove_original_id=remove_original_id,columns=columns).read_with_foreign()
+        df_res = chpo.CheckPointFunction(self._iter_read)(ascending,remove_original_id=remove_original_id,columns=columns).read_with_foreign()
         if columns is not None:
             df_res = df_res[columns]
         return df_res.copy()
 
     def get_types_expanded(self)->pd.DataFrame:
-        return cp.CheckPointFunction(self._iter_read).get_types_with_foreign()
+        return chpo.CheckPointFunction(self._iter_read).get_types_with_foreign()
     
     def get_local_val_to_id(self,column:str):
-        convert_table:pd.DataFrame = cp.CheckPointFunction(self._iter_read).read_without_foreign()
+        convert_table:pd.DataFrame = chpo.CheckPointFunction(self._iter_read).read_without_foreign()
         ser_filtered = convert_table[column].dropna()
         ser_filtered.index = ser_filtered.index.astype('Int64')
         ret = ser_filtered.to_dict()
@@ -324,7 +324,7 @@ class TableStructure:
             foreign id.
         
         '''
-        df = cp.CheckPointFunction(self._iter_read).addresses()
+        df = chpo.CheckPointFunction(self._iter_read).addresses()
 
         return df.loc[row,column]
     
@@ -339,7 +339,7 @@ class TableStructure:
         return self.read()
 
     def upload(self,id_row:int,**kwarg):
-        column_identity = cp.CheckPointFunction(self._iter_read).get_identity()
+        column_identity = chpo.CheckPointFunction(self._iter_read).get_identity()
         cp = kwarg.copy()
         for column in kwarg:
             if self.check_if_not_local_column(column):
@@ -349,7 +349,7 @@ class TableStructure:
                 foreign_upload_dict = {foreign_column:foreign_val}
 
                 local_foreign_id = self._get_local_foreign_id(id_row,column)
-                foreign_ts=cp.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables()[local_column]
+                foreign_ts=chpo.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables()[local_column]
 
                 if local_foreign_id is pd.NA:
                     foreign_index = set(foreign_ts.read().index.to_list())
@@ -472,7 +472,7 @@ class TableStructure:
             conn.commit()
 
     def delete_row(self,row:int):
-        column_identity = cp.CheckPointFunction(self._iter_read).get_identity()
+        column_identity = chpo.CheckPointFunction(self._iter_read).get_identity()
         stmt=text(f'''DELETE FROM {self.schema_name}.{self.table_name}
                   WHERE {column_identity[0]}={row};
                   ''')
