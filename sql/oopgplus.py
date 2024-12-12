@@ -295,7 +295,7 @@ class TableStructure:
         if columns is not None:
             df_res = df_res[columns]
         return df_res.copy()
-    def __getitem__(self, item):
+    def __getitem__(self, item)->pd.DataFrame:
         return self.read_expand()[item]
 
     def get_types_expanded(self)->pd.DataFrame:
