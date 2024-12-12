@@ -295,6 +295,8 @@ class TableStructure:
         if columns is not None:
             df_res = df_res[columns]
         return df_res.copy()
+    def __getitem__(self, item):
+        return self.read_expand()[item]
 
     def get_types_expanded(self)->pd.DataFrame:
         return chpo.CheckPointFunction(self._iter_read).get_types_with_foreign()
