@@ -94,10 +94,10 @@ class TabsPlus:
             self._streamlit_display_index_num = ret_list
             self._strs_to_num = tab_information
 
-    def __getitem__(self,item):
+    def __getitem__(self,item:str):
         return self._streamlit_display_index_num[self._strs_to_num[item]]
     
-    def __getattr__(self,attr):
+    def __getattr__(self,attr:str):
         return self._streamlit_display_index_num[self._strs_to_num[attr]]
 
 def write_columns(*positional_data,**keyword_data):
