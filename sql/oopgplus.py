@@ -456,7 +456,7 @@ class TableStructure:
         stmt=text(f'''
         ALTER TABLE IF EXISTS {self.schema_name}.{self.table_name}
         ADD FOREIGN KEY ({local_col})
-        REFERENCES {ts_foreign.schema_name}.{ts_foreign.table_name} ({ts_foreign.get_identity[0]}) MATCH SIMPLE
+        REFERENCES {ts_foreign.schema_name}.{ts_foreign.table_name} ({ts_foreign.get_identity()[0]}) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID;
