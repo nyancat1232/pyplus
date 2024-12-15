@@ -505,7 +505,8 @@ def get_table_list(engine:sqlalchemy.Engine):
     '''
     with engine.connect() as con_con:
         ret = pd.read_sql_query(sql,con=con_con)
-    
+
+        ret = ret[~ret['table_schema'].str.startswith('pg_')]
         return ret
 
 
