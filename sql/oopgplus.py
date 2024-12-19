@@ -205,14 +205,8 @@ class TableStructure:
 
         sql_content = text(f"SELECT * FROM {self.schema_name}.{self.table_name}")
         with self.engine.connect() as conn:
-            df_content = pd.read_sql_query(sql=sql_content,con=conn)
-            df_content=df_content.set_index(column_identity)
+            df_content = pd.read_sql_query(sql=sql_content,con=conn,dtype=conv_type,index_col=column_identity)
 
-        column_identity = df_content.index.name
-
-        df_content = df_content.reset_index()
-        df_content = df_content.astype(conv_type)
-        df_content = df_content.set_index(column_identity)
         yield df_content.copy(), 'read_without_foreign'
         
         def check_selfref_table(ts:Self)->bool:
