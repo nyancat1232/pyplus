@@ -172,12 +172,6 @@ class TableStructure:
         df_types=df_types.set_index('column_name')
         yield df_types.copy(), 'get_types'
 
-        sql_content = text(f"SELECT * FROM {self.schema_name}.{self.table_name}")
-        with self.engine.connect() as conn:
-            df_content = pd.read_sql_query(sql=sql_content,con=conn)
-            df_content=df_content.set_index(column_identity)
-
-        column_identity = df_content.index.name
         def _convert_pgsql_type_to_pandas_type(pgtype:str,precision:Literal['ns']='ns',
                                             tz:str|int|tzinfo|None=ZoneInfo('UTC')):
             #https://pandas.pydata.org/pandas-docs/stable/user_guide/basics.html#basics-dtypes
@@ -207,6 +201,15 @@ class TableStructure:
 
         conv_type = {column_name:_convert_pgsql_type_to_pandas_type(df_types['data_type'][column_name]) for column_name 
                      in df_types.index}
+        print(conv_type)
+
+        sql_content = text(f"SELECT * FROM {self.schema_name}.{self.table_name}")
+        with self.engine.connect() as conn:
+            df_content = pd.read_sql_query(sql=sql_content,con=conn)
+            df_content=df_content.set_index(column_identity)
+
+        column_identity = df_content.index.name
+
         df_content = df_content.reset_index()
         df_content = df_content.astype(conv_type)
         df_content = df_content.set_index(column_identity)
