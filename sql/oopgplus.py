@@ -201,7 +201,6 @@ class TableStructure:
 
         conv_type = {column_name:_convert_pgsql_type_to_pandas_type(df_types['data_type'][column_name]) for column_name 
                      in df_types.index}
-        print(conv_type)
 
         sql_content = text(f"SELECT * FROM {self.schema_name}.{self.table_name}")
         with self.engine.connect() as conn:
