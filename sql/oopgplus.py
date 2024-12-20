@@ -111,7 +111,7 @@ class TableStructure:
         
         with self.engine.connect() as conn:
             for key in type_dict:
-                query = text(f'ALTER TABLE IF EXISTS {self.schema_name}.{self.table_name} ADD COLUMN {key} {type_dict[key]};')
+                query = text(f'ALTER TABLE IF EXISTS {self.schema_name}.{self.table_name} ADD COLUMN "{key}" {type_dict[key]};')
                 conn.execute(query)
             conn.commit()
             
