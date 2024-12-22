@@ -373,7 +373,7 @@ class TableStructure:
         if len(cp)<1:
             return self.read()
 
-        original=",".join([f'{key} = {_conversion_Sql_value(cp[key])}' for key in cp])
+        original=",".join([f'"{key}" = {_conversion_Sql_value(cp[key])}' for key in cp])
         
         sql = text(f"""
         UPDATE {self.schema_name}.{self.table_name}
