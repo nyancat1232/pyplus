@@ -99,7 +99,7 @@ class TableStructure:
         self.engine = engine
 
     def __repr__(self):
-        ret = f"{self.schema_name}.{self.table_name}"
+        ret = f'{self.schema_name}.{self.table_name}'
         ret += repr(chpo.CheckPointFunction(self._iter_read).read_with_foreign())
         return ret
 
@@ -202,7 +202,7 @@ class TableStructure:
         conv_type = {column_name:_convert_pgsql_type_to_pandas_type(df_types['data_type'][column_name]) for column_name 
                      in df_types.index}
 
-        sql_content = text(f"SELECT * FROM {self.schema_name}.{self.table_name}")
+        sql_content = text(f'SELECT * FROM {self.schema_name}.{self.table_name}')
         with self.engine.connect() as conn:
             df_content = pd.read_sql_query(sql=sql_content,con=conn,dtype=conv_type,index_col=column_identity)
 
@@ -375,11 +375,11 @@ class TableStructure:
 
         original=",".join([f'"{key}" = {_conversion_Sql_value(cp[key])}' for key in cp])
         
-        sql = text(f"""
+        sql = text(f'''
         UPDATE {self.schema_name}.{self.table_name}
         SET {original}
         WHERE {column_identity[0]} = {id_row};
-        """)
+        ''')
         
         with self.engine.connect() as conn:
             conn.execute(sql)
@@ -433,10 +433,10 @@ class TableStructure:
             for row in processed_rows:   
                 columns = ','.join([f'"{col}"' for col in row])
                 values = ','.join([_conversion_Sql_value(row[col]) for col in row])
-                stmt = text(f"""
+                stmt = text(f'''
                 INSERT INTO {self.schema_name}.{self.table_name} ({columns})
                 VALUES ({values})
-                """)
+                ''')
                 conn.execute(stmt)
             conn.commit()
 
