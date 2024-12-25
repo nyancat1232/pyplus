@@ -431,6 +431,10 @@ class TableStructure:
         
         with self.engine.connect() as conn:
             for row in processed_rows:   
+                if len(row) == 0:
+                    print('No values has been added.')
+                    continue
+
                 columns = ','.join([f'"{col}"' for col in row])
                 values = ','.join([_conversion_Sql_value(row[col]) for col in row])
                 stmt = text(f'''
