@@ -352,8 +352,7 @@ class TableStructure:
                 if local_foreign_id is pd.NA:
                     #Add when local column of the row has no foreign columns.
                     foreign_index = set(foreign_ts.read().index.to_list())
-                    df_foreign_after =foreign_ts.upload_append(**foreign_upload_dict)
-
+                    df_foreign_after =foreign_ts.append(**foreign_upload_dict)
                     def get_foreign_returned():
                         foreign_index_after = set(df_foreign_after.index.to_list())
                         foreign_index_diff = foreign_index_after - foreign_index
@@ -449,9 +448,6 @@ class TableStructure:
 
     def append(self,**kwarg:Any):
         return self.upload_appends(kwarg)
-    def upload_append(self, **kwarg: Any):
-        warn("The 'upload_append' method is deprecated, use 'append' instead.", DeprecationWarning, stacklevel=2)
-        return self.append(**kwarg)
     
     def connect_foreign_column(self,ts_foreign:Self,local_col:str):
         stmt=text(f'''
