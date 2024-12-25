@@ -350,6 +350,7 @@ class TableStructure:
                 foreign_ts=chpo.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables()[local_column]
 
                 if local_foreign_id is pd.NA:
+                    #Add when local column of the row has no foreign columns.
                     foreign_index = set(foreign_ts.read().index.to_list())
                     df_foreign_after =foreign_ts.upload_append(**foreign_upload_dict)
 
