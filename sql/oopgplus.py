@@ -298,9 +298,6 @@ class TableStructure:
     def __getitem__(self, item)->pd.DataFrame:
         return self.read_expand()[item]
 
-    def get_types_expanded(self)->pd.DataFrame:
-        return chpo.CheckPointFunction(self._iter_read).get_types_with_foreign()
-    
     def get_local_val_to_id(self,column:str):
         convert_table:pd.DataFrame = chpo.CheckPointFunction(self._iter_read).read_without_foreign()
         ser_filtered = convert_table[column].dropna()
