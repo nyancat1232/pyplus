@@ -143,7 +143,7 @@ class TableStructure:
             return False
         current_column = column.split(".")[0]
 
-        if current_column in chpo.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables():
+        if current_column in self.get_foreign_tables():
             return True
         else:
             return False
@@ -215,7 +215,7 @@ class TableStructure:
                 case _:
                     return False
         
-        foreign_tables_ts =chpo.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables() 
+        foreign_tables_ts =self.get_foreign_tables() 
         for col_local_foreign in foreign_tables_ts:
             if not check_selfref_table(foreign_tables_ts[col_local_foreign]):
                 ts = foreign_tables_ts[col_local_foreign]
@@ -348,7 +348,7 @@ class TableStructure:
                 foreign_upload_dict = {foreign_column:foreign_val}
 
                 local_foreign_id = self._get_local_foreign_id(id_row,column)
-                foreign_ts=chpo.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables()[local_column]
+                foreign_ts=self.get_foreign_tables()[local_column]
 
                 if local_foreign_id is pd.NA:
                     #Add when local column of the row has no foreign columns.
