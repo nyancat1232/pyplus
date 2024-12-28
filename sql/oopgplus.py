@@ -121,8 +121,7 @@ class TableStructure:
         with self.engine.connect() as conn:
             result = conn.execute(stmt,self._get_default_parameter_stmt())
             
-            df_types=pd.DataFrame([[getattr(row,col) for col in stmt_columns] for row in result],columns=stmt_columns)
-            return df_types
+            return pd.DataFrame([[getattr(row,col) for col in stmt_columns] for row in result],columns=stmt_columns)
         
     def _iter_foreign_tables(self):
         df_types = (self._execute_to_pandas(stmt_foreign,stmt_foreign_col)
@@ -287,9 +286,8 @@ class TableStructure:
         return chpo.CheckPointFunction(self._iter_read).get_types_with_foreign()
 
     def read(self,ascending=False,columns:list[str]|None=None)->pd.DataFrame:
-        df_content = chpo.CheckPointFunction(self._iter_read).read_without_foreign()
-        df_rwof = df_content.sort_index(ascending=ascending)
-        df_res = df_rwof
+        df_content:pd.DataFrame = chpo.CheckPointFunction(self._iter_read).read_without_foreign()
+        df_res= df_content.sort_index(ascending=ascending)
         if columns is not None:
             df_res = df_res[columns]
         return df_res.copy()
@@ -506,9 +504,7 @@ def get_table_list(engine:sqlalchemy.Engine):
     FROM information_schema.table_constraints;
     '''
     with engine.connect() as con_con:
-        ret = pd.read_sql_query(sql,con=con_con)
-
-        ret = ret[~ret['table_schema'].str.startswith('pg_')]
+        ret = pd.read_sql_query(sql,con=con_con)[~ret['table_schema'].str.startswith('pg_')]
         return ret
 
 def get_schema_list(engine:sqlalchemy.Engine):
@@ -516,9 +512,7 @@ def get_schema_list(engine:sqlalchemy.Engine):
     FROM information_schema.table_constraints;
     '''
     with engine.connect() as con_con:
-        ret = pd.read_sql_query(sql,con=con_con)
-
-        ret = ret[~ret['table_schema'].str.startswith('pg_')]
+        ret = pd.read_sql_query(sql,con=con_con)[~ret['table_schema'].str.startswith('pg_')]
         return ret
 
 class SchemaStructure:
