@@ -276,8 +276,12 @@ class TableStructure:
         df_ret_new = df_ret_new.dropna(subset='column_default')
         ser_ret_new = df_ret_new['column_default']
         return ser_ret_new        
+
     def get_types(self)->pd.DataFrame:
         return chpo.CheckPointFunction(self._iter_read).get_types()
+    def get_types_expanded(self)->pd.DataFrame:
+        return chpo.CheckPointFunction(self._iter_read).get_types_with_foreign()
+
     def read(self,ascending=False,columns:list[str]|None=None)->pd.DataFrame:
         df_content = chpo.CheckPointFunction(self._iter_read).read_without_foreign()
         df_rwof = df_content.sort_index(ascending=ascending)
