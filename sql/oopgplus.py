@@ -272,7 +272,7 @@ class TableStructure:
         return chpo.CheckPointFunction(self._iter_read).get_identity() 
         
     def get_default_value(self):
-        df_ret_new:pd.DataFrame = chpo.CheckPointFunction(self._iter_read).get_types()
+        df_ret_new = self.get_types()
         df_ret_new = df_ret_new.dropna(subset='column_default')
         ser_ret_new = df_ret_new['column_default']
         return ser_ret_new        
