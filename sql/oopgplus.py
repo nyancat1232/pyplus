@@ -504,7 +504,9 @@ def get_table_list(engine:sqlalchemy.Engine):
     FROM information_schema.table_constraints;
     '''
     with engine.connect() as con_con:
-        ret = pd.read_sql_query(sql,con=con_con)[~ret['table_schema'].str.startswith('pg_')]
+        ret = pd.read_sql_query(sql,con=con_con)
+
+        ret = ret[~ret['table_schema'].str.startswith('pg_')]
         return ret
 
 def get_schema_list(engine:sqlalchemy.Engine):
@@ -512,7 +514,9 @@ def get_schema_list(engine:sqlalchemy.Engine):
     FROM information_schema.table_constraints;
     '''
     with engine.connect() as con_con:
-        ret = pd.read_sql_query(sql,con=con_con)[~ret['table_schema'].str.startswith('pg_')]
+        ret = pd.read_sql_query(sql,con=con_con)
+
+        ret = ret[~ret['table_schema'].str.startswith('pg_')]
         return ret
 
 class SchemaStructure:
