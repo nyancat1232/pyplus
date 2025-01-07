@@ -275,11 +275,17 @@ class TableStructure:
         return chpo.CheckPointFunction(self._iter_read).get_identity() 
         
     def get_default_value(self):
-        ser_ret_new = (self.get_types()
-                      .dropna(subset='column_default')['column_default']
-        )
+        ser_ret_new = self.get_types()['column_default']
         return ser_ret_new        
-
+    
+    def set_default_value(self,col:str,val:str):
+        stmt_set_default=text(f''' ALTER TABLE IF EXISTS {self.schema_name}.{self.table_name}
+        ALTER COLUMN "{col}" SET DEFAULT {val};
+        ''')
+        with self.engine.connect() as conn:
+            conn.execute(stmt_set_default)
+            conn.commit()
+    
     def get_types(self)->pd.DataFrame:
         return chpo.CheckPointFunction(self._iter_read).get_types()
     def get_types_expanded(self)->pd.DataFrame:
