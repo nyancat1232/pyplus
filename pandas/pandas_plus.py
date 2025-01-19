@@ -42,8 +42,10 @@ def empty_records(df:pd.DataFrame)->pd.DataFrame:
     ???
     '''
     
-    df_ret = df.copy()
-    df_ret = df_ret.iloc[0:0]
-    return df_ret
+    return (
+        df
+        .copy()
+        .iloc[0:0]
+    )
 
 filter_between = lambda sr,start,end:(sr>start) & (sr<end)
