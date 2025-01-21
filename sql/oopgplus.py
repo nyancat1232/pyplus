@@ -150,7 +150,7 @@ class TableStructure:
         else:
             return False
     
-    def _iter_read(self,ascending=False,columns:list[str]|None=None,remove_original_id=False):
+    def _iter_read(self,ascending=False,remove_original_id=False):
         with self.engine.connect() as conn:
             result = conn.execute(stmt_find_identity,self._get_default_parameter_stmt())
             column_identity = [row.identity_column for row in result]
@@ -305,10 +305,8 @@ class TableStructure:
             df_res = df_res[columns]
         return df_res.copy()
 
-    def read_expand(self,ascending=False,remove_original_id=False,columns:list[str]|None=None)->pd.DataFrame:
-        df_res = chpo.CheckPointFunction(self._iter_read)(ascending,remove_original_id=remove_original_id,columns=columns).read_with_foreign()
-        if columns is not None:
-            df_res = df_res[columns]
+    def read_expand(self,ascending=False,remove_original_id=False)->pd.DataFrame:
+        df_res = chpo.CheckPointFunction(self._iter_read)(ascending,remove_original_id=remove_original_id).read_with_foreign()
         return df_res.copy()
     def __getitem__(self, item)->pd.DataFrame:
         return self.read_expand()[item]
