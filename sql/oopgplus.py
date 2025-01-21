@@ -49,7 +49,7 @@ SELECT {stmt_default_col[0]},
 def _apply_escaping(sentence:str):
     return sentence.replace("'","''")
 
-def _conversion_Sql_value(val:None|int|np.integer|float|np.floating|str|date|pd.Timestamp|list)->str:
+def _convert_into_sql_string(val:None|int|np.integer|float|np.floating|str|date|pd.Timestamp|list)->str:
     match val:
         case None:
             return 'NULL'
@@ -387,7 +387,7 @@ class TableStructure:
         if len(cp)<1:
             return self.read()
 
-        original=",".join([f'"{key}" = {_conversion_Sql_value(cp[key])}' for key in cp])
+        original=",".join([f'"{key}" = {_convert_into_sql_string(cp[key])}' for key in cp])
         
         sql = text(f'''
         UPDATE {self.schema_name}.{self.table_name}
@@ -450,7 +450,7 @@ class TableStructure:
                     continue
 
                 columns = ','.join([f'"{col}"' for col in row])
-                values = ','.join([_conversion_Sql_value(row[col]) for col in row])
+                values = ','.join([_convert_into_sql_string(row[col]) for col in row])
                 stmt = text(f'''
                 INSERT INTO {self.schema_name}.{self.table_name} ({columns})
                 VALUES ({values})
