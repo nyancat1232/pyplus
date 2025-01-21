@@ -208,7 +208,14 @@ class TableStructure:
         sql_content = text(f'SELECT * FROM {self.schema_name}.{self.table_name}')
         with self.engine.connect() as conn:
             df_content = pd.read_sql_query(sql=sql_content,con=conn,dtype=conv_type,index_col=column_identity)
-
+        
+        #convert date column as datetime64 into date
+        dict_types = df_types.to_dict('index')
+        for column_name in dict_types:
+            match dict_types[column_name]['data_type']:
+                case 'date':
+                    df_content[column_name] = df_content[column_name].dt.date
+        
         yield df_content.copy(), 'read_without_foreign'
         
         def check_selfref_table(ts:Self)->bool:
