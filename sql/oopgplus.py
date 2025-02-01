@@ -285,13 +285,6 @@ class TableStructure:
         ser_ret_new = self.get_types()['column_default']
         return ser_ret_new        
     
-    def set_default_value(self,col:str,val:str):
-        stmt_set_default=text(f''' ALTER TABLE IF EXISTS {self.schema_name}.{self.table_name}
-        ALTER COLUMN "{col}" SET DEFAULT {val};
-        ''')
-        with self.engine.connect() as conn:
-            conn.execute(stmt_set_default)
-            conn.commit()
     
     def get_types(self)->pd.DataFrame:
         return chpo.CheckPointFunction(self._iter_read).get_types()
@@ -341,6 +334,14 @@ class TableStructure:
         return df.loc[row,column]
     
     #upload
+    def set_default_value(self,col:str,val:str):
+        stmt_set_default=text(f''' ALTER TABLE IF EXISTS {self.schema_name}.{self.table_name}
+        ALTER COLUMN "{col}" SET DEFAULT {val};
+        ''')
+        with self.engine.connect() as conn:
+            conn.execute(stmt_set_default)
+            conn.commit()
+
     def change_column_name(self,**kwarg):
         cp = kwarg.copy()
         with self.engine.connect() as conn:
