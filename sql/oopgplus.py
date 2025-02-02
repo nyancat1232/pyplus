@@ -406,6 +406,9 @@ class TableStructure:
         return self.read()
 
     def upload_dataframe(self,df:pd.DataFrame):
+        '''
+        dataframe(argument)'s index as database's row id.
+        '''
         dict_df = df.to_dict('index')
         for row in dict_df:
             self.upload(row,**dict_df[row])
