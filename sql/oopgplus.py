@@ -1,13 +1,15 @@
 import pandas as pd
 from sqlalchemy.sql import text
 import sqlalchemy
-from typing import Literal,Self,Any
+from typing import Literal,Self,Any,Callable,TypeVar
 from datetime import date,tzinfo
 from zoneinfo import ZoneInfo
 import numpy as np
 import checkpoint as chpo
 import networkx as nx
 from warnings import warn
+
+T = TypeVar("T")
 
 stmt_find_identity = text(f'''
 SELECT attname as identity_column
@@ -303,6 +305,9 @@ class TableStructure:
         return df_res.copy()
     def __getitem__(self, item)->pd.DataFrame:
         return self.read_expand()[item]
+    
+    def pipe(self,func:Callable[...,T])->T:
+        return func(self)
 
     def get_local_val_to_id(self,column:str):
         convert_table:pd.DataFrame = chpo.CheckPointFunction(self._iter_read).read_without_foreign()
