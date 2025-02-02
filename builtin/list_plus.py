@@ -43,3 +43,8 @@ def apply(multi_list,func):
         else:
             rr.append(func(v))
     return rr
+
+class ListPlus(list):
+    def append(self, object):
+        super().append(object)
+        return self
