@@ -342,14 +342,11 @@ class TableStructure:
             conn.execute(stmt_set_default)
             conn.commit()
 
-    def change_column_name(self,**kwarg):
-        cp = kwarg.copy()
+    def change_column_name(self,col:str,val:str):
+        sql =text(f'ALTER TABLE IF EXISTS {self.schema_name}.{self.table_name} RENAME {col} TO {val};')
         with self.engine.connect() as conn:
-            for name in cp:
-                sql =text( f'ALTER TABLE IF EXISTS {self.schema_name}.{self.table_name} RENAME {name} TO {cp[name]};')
-                conn.execute(sql)
+            conn.execute(sql)
             conn.commit()
-        return self.read()
 
     def upload(self,id_row:int,**kwarg):
         column_identity = chpo.CheckPointFunction(self._iter_read).get_identity()
