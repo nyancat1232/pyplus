@@ -305,8 +305,8 @@ class TableStructure:
     def __getitem__(self, item)->pd.DataFrame:
         return self.read_expand()[item]
     
-    def pipe[T](self,func:Callable[...,T])->T:
-        return func(self)
+    def pipe[T](self,func:Callable[...,T],*args,**kwargs)->T:
+        return func(self,*args,**kwargs)
 
     def get_local_val_to_id(self,column:str):
         convert_table:pd.DataFrame = chpo.CheckPointFunction(self._iter_read).read_without_foreign()
