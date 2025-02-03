@@ -73,7 +73,7 @@ class TabsPlus:
     >>>     ...
     '''
     def __init__(self,*,titles:list[str],
-                 layout:Literal['tab','column','popover']='tab',hide_titles=True,markdown_prefix="### ",markdown_postfix=""):
+                 layout:Literal['tab','column','popover']='tab',hide_titles=False,markdown_prefix="### ",markdown_postfix=""):
         tab_information={tab_str:ind for ind,tab_str in enumerate(titles)}
         ret_list=[]
         if len(titles)>0:
