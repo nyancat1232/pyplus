@@ -48,3 +48,10 @@ class ListPlus(list):
     def append(self, object):
         super().append(object)
         return self
+    def fillna(self,value):
+        for ind,_ in enumerate(super().__iter__()):
+            if (val:=super().pop(ind)) is None:
+                super().insert(ind,value)
+            else:
+                super().insert(ind,val)
+        return self
