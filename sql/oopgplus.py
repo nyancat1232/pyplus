@@ -10,18 +10,6 @@ import networkx as nx
 from warnings import warn
 
 
-stmt_find_identity = text(f'''
-SELECT attname as identity_column
-  FROM pg_attribute 
-       JOIN pg_class 
-            ON pg_attribute.attrelid = pg_class.oid
-       JOIN pg_namespace
-            ON pg_class.relnamespace = pg_namespace.oid
- WHERE nspname = :schema
-       AND relname = :table
-       AND attidentity = 'a';
-''')
-
 
 stmt_default_col=['column_name','column_default']
 stmt_default = text(f'''
@@ -147,6 +135,17 @@ class TableStructure:
             return False
     
     def _iter_read(self,ascending=False,remove_original_id=False):
+        stmt_find_identity = text(f'''
+        SELECT attname as identity_column
+        FROM pg_attribute 
+            JOIN pg_class 
+                    ON pg_attribute.attrelid = pg_class.oid
+            JOIN pg_namespace
+                    ON pg_class.relnamespace = pg_namespace.oid
+        WHERE nspname = :schema
+            AND relname = :table
+            AND attidentity = 'a';
+        ''')
         with self.engine.connect() as conn:
             result = conn.execute(stmt_find_identity,self._get_default_parameter_stmt())
             column_identity = [row.identity_column for row in result]
