@@ -22,20 +22,6 @@ SELECT attname as identity_column
        AND attidentity = 'a';
 ''')
 
-stmt_foreign_col=['current_column_name','upper_schema','upper_table']
-stmt_foreign = text(f'''
-SELECT KCU.column_name AS {stmt_foreign_col[0]},
-       CCU.table_schema AS {stmt_foreign_col[1]}, 
-       CCU.table_name AS {stmt_foreign_col[2]}
-  FROM information_schema.key_column_usage AS KCU
-       JOIN information_schema.constraint_column_usage AS CCU 
-            ON KCU.constraint_name = CCU.constraint_name
-       JOIN information_schema.table_constraints AS TC 
-            ON KCU.constraint_name = TC.constraint_name
- WHERE TC.constraint_type = 'FOREIGN KEY'
-       AND KCU.table_schema=:schema
-       AND KCU.table_name=:table;
-''')
 
 stmt_default_col=['column_name','column_default']
 stmt_default = text(f'''
@@ -125,6 +111,20 @@ class TableStructure:
             return pd.DataFrame([[getattr(row,col) for col in stmt_columns] for row in result],columns=stmt_columns)
         
     def get_foreign_tables(self)->dict[str,Self]:
+        stmt_foreign_col=['current_column_name','upper_schema','upper_table']
+        stmt_foreign = text(f'''
+        SELECT KCU.column_name AS {stmt_foreign_col[0]},
+            CCU.table_schema AS {stmt_foreign_col[1]}, 
+            CCU.table_name AS {stmt_foreign_col[2]}
+        FROM information_schema.key_column_usage AS KCU
+            JOIN information_schema.constraint_column_usage AS CCU 
+                    ON KCU.constraint_name = CCU.constraint_name
+            JOIN information_schema.table_constraints AS TC 
+                    ON KCU.constraint_name = TC.constraint_name
+        WHERE TC.constraint_type = 'FOREIGN KEY'
+            AND KCU.table_schema=:schema
+            AND KCU.table_name=:table;
+        ''')
         df_types = (
             self
             ._execute_to_pandas(stmt_foreign,stmt_foreign_col)
