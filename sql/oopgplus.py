@@ -124,7 +124,7 @@ class TableStructure:
             
             return pd.DataFrame([[getattr(row,col) for col in stmt_columns] for row in result],columns=stmt_columns)
         
-    def _iter_foreign_tables(self):
+    def get_foreign_tables(self)->dict[str,Self]:
         df_types = (
             self
             ._execute_to_pandas(stmt_foreign,stmt_foreign_col)
@@ -134,9 +134,7 @@ class TableStructure:
         ret = {val['current_column_name']:
                TableStructure(val['upper_schema'],val['upper_table'],self.engine) 
                for val in df_types}
-        yield ret.copy(), 'get_foreign_tables'
-    def get_foreign_tables(self)->dict[str,Self]:
-        return chpo.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables()
+        return ret.copy()
     
     def check_if_not_local_column(self,column:str)->bool:
         if '.' not in column:
