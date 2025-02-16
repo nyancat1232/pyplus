@@ -129,18 +129,11 @@ class TableStructure:
             self
             ._execute_to_pandas(stmt_foreign,stmt_foreign_col)
             .drop_duplicates()
-            .set_index('current_column_name')
-        )
-        yield df_types.copy(), 'get_foreign_tables_list'
-
-        dd = (
-            df_types
-            .reset_index()
             .to_dict('records')
         )
         ret = {val['current_column_name']:
                TableStructure(val['upper_schema'],val['upper_table'],self.engine) 
-               for val in dd}
+               for val in df_types}
         yield ret.copy(), 'get_foreign_tables'
     def get_foreign_tables(self)->dict[str,Self]:
         return chpo.CheckPointFunction(self._iter_foreign_tables).get_foreign_tables()
