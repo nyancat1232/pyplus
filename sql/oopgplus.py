@@ -125,14 +125,18 @@ class TableStructure:
             return pd.DataFrame([[getattr(row,col) for col in stmt_columns] for row in result],columns=stmt_columns)
         
     def _iter_foreign_tables(self):
-        df_types = (self._execute_to_pandas(stmt_foreign,stmt_foreign_col)
-                        .drop_duplicates()
-                        .set_index('current_column_name')
+        df_types = (
+            self
+            ._execute_to_pandas(stmt_foreign,stmt_foreign_col)
+            .drop_duplicates()
+            .set_index('current_column_name')
         )
         yield df_types.copy(), 'get_foreign_tables_list'
 
-        dd = (df_types.reset_index()
-                      .to_dict('records')
+        dd = (
+            df_types
+            .reset_index()
+            .to_dict('records')
         )
         ret = {val['current_column_name']:
                TableStructure(val['upper_schema'],val['upper_table'],self.engine) 
@@ -171,8 +175,9 @@ class TableStructure:
             AND table_name = '{self.table_name}';
         ''')
         with self.engine.connect() as conn:
-            df_types = (pd.read_sql_query(sql=stmt_get_types,con=conn)
-                         .set_index('column_name')
+            df_types = (
+                pd.read_sql_query(sql=stmt_get_types,con=conn)
+                .set_index('column_name')
             )
         yield df_types.copy(), 'get_types'
 
