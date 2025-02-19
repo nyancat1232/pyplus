@@ -191,8 +191,6 @@ class TableStructure:
                     return f'datetime64[{precision}]'
                 case 'timestamp with time zone':
                     return pd.DatetimeTZDtype(precision,tz=tz)
-                case 'interval':
-                    return 'str'
                 case 'ARRAY':
                     return 'object'
                 case _:
