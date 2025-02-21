@@ -481,6 +481,9 @@ class TableStructure:
         with self.engine.connect() as conn:
             conn.execute(stmt)
             conn.commit()
+    def delete_columns(self,*columns:str):
+        for column in columns:
+            self.delete_column(column)
 
     def delete_row(self,row:int):
         column_identity = chpo.CheckPointFunction(self._iter_read).get_identity()
@@ -490,6 +493,9 @@ class TableStructure:
         with self.engine.connect() as conn:
             conn.execute(stmt)
             conn.commit()
+    def delete_rows(self,*rows:int):
+        for row in rows:
+            self.delete_row(row)
     
     def delete_table(self):
         stmt=text(f'''DROP TABLE IF EXISTS {self.schema_name}.{self.table_name};''')
