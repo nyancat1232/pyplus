@@ -490,6 +490,12 @@ class TableStructure:
         with self.engine.connect() as conn:
             conn.execute(stmt)
             conn.commit()
+    
+    def delete_table(self):
+        stmt=text(f'''DROP TABLE IF EXISTS {self.schema_name}.{self.table_name};''')
+        with self.engine.connect() as conn:
+            conn.execute(stmt)
+            conn.commit()
 
 Table = TableStructure
     
